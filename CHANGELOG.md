@@ -4,6 +4,15 @@ All notable changes to ReaperMCP will be documented in this file.
 
 ## [Unreleased]
 
+### Added in tyumentsev fork 0.9.0
+
+- REAPER 7.82 native API catalog, discovery, documented static calls, typed handles, binary strings and bounded audio arrays.
+- Read-only FX tree/identity/offline inspection including input, monitor and container FX.
+- Versioned IPC for staged deployment; native API and serialization tests.
+- Windows 8.3 path expansion fallback when Python realpath leaves aliases unresolved.
+- See docs/NATIVE_API.md for scope, lifecycle and eight excluded native calls.
+
+
 ### Fixed
 
 - **`track_set_input(input_index=-1)` cleared the track's input instead of

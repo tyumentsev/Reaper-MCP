@@ -1,4 +1,19 @@
-<!-- mcp-name: io.github.xDarkzx/reaper-mcp -->
+# tyumentsev fork: REAPER 7.82 native API
+
+Version 0.9.0 adds a searchable catalog of 732 native functions, 724 static API dispatch entries, typed object handles, binary MIDI/audio-buffer transport and FX-tree inspection. See [coverage, examples and explicit limitations](docs/NATIVE_API.md). The original 181 workflow tools remain available; the full profile now has 186 tools. This fork uses a versioned IPC directory; update both Python and Lua.
+
+To install **this fork**, clone its feature branch and install from that checkout:
+
+```sh
+git clone --branch reaper-7-82-api https://github.com/tyumentsev/Reaper-MCP.git
+cd Reaper-MCP
+pip install ".[analysis]"
+```
+
+Load `reaper_scripts/reaper_mcp_server.lua` from this checkout in REAPER and configure your MCP client to run `python -m reaper_mcp.main` with that Python environment. The fork's IPC directory is `reaper_mcp_v09`. The upstream instructions below describe the original package; installing the published PyPI package does not install this fork.
+
+## Upstream documentation
+
 <h1 align="center">ReaperMCP</h1>
 
 <p align="center">

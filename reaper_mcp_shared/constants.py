@@ -32,7 +32,7 @@ def ensure_private_dir(path: str) -> None:
 
 
 class Connection:
-    IPC_DIR = os.path.join(tempfile.gettempdir(), "reaper_mcp")
+    IPC_DIR = os.path.join(tempfile.gettempdir(), "reaper_mcp_v09")
     COMMAND_FILE = os.path.join(IPC_DIR, "command.json")
     RESPONSE_FILE = os.path.join(IPC_DIR, "response.json")
     COMMAND_TMP = os.path.join(IPC_DIR, "command.tmp")

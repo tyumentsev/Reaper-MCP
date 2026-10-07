@@ -9,6 +9,7 @@ same protection instead of some having it and some not.
 """
 import os
 import sys
+import ctypes
 
 from reaper_mcp_shared.error_codes import ReaperMCPError, ErrorCode
 
@@ -125,6 +126,18 @@ def safe_path(path: str) -> str:
     # Block system directories
     if sys.platform == "win32":
         resolved_lower = resolved.lower()
+        # realpath can leave 8.3 aliases unresolved in constrained Windows hosts.
+        # Expand the existing ancestor with Win32, then restore a missing suffix.
+        ancestor, suffix = resolved, []
+        while not os.path.exists(ancestor):
+            parent, leaf = os.path.split(ancestor)
+            if parent == ancestor or not leaf:
+                break
+            suffix.insert(0, leaf)
+            ancestor = parent
+        buffer = ctypes.create_unicode_buffer(32768)
+        if ctypes.windll.kernel32.GetLongPathNameW(ancestor, buffer, len(buffer)):
+            resolved_lower = os.path.join(buffer.value, *suffix).lower()
         for blocked in _BLOCKED_DIRS_WIN:
             if resolved_lower.startswith(blocked.lower()):
                 raise ReaperMCPError(ErrorCode.INVALID_PATH, f"Access to system directory not allowed: {blocked}")

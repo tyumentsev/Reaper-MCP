@@ -136,7 +136,7 @@ PROFILES: dict[str, set[str] | None] = {
 }
 
 _EXPECTED_MODULES = frozenset({
-    "analysis_tools", "chops_tools", "compose_edit_tools", "compose_tools",
+    "native_api_tools", "analysis_tools", "chops_tools", "compose_edit_tools", "compose_tools",
     "demo_tools", "envelope_tools", "fx_tools", "inventory_tools",
     "item_tools", "loops_tools", "marker_tools", "midi_tools", "mix_tools",
     "patterns_tools", "pipeline_tools", "project_tools", "quantize_tools",

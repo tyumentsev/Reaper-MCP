@@ -22,7 +22,7 @@ local function setup_ipc()
   local sep = package.config:sub(1,1)
   if sep == "\\" then
     -- Windows: %TEMP% (same thing Python's tempfile.gettempdir() returns)
-    ipc_dir = os.getenv("TEMP") .. "\\reaper_mcp"
+    ipc_dir = os.getenv("TEMP") .. "\\reaper_mcp_v09"
   else
     -- macOS + Linux: prefer $TMPDIR if set (macOS sets it to /var/folders/.../T/),
     -- otherwise fall back to /tmp. This MUST match Python's tempfile.gettempdir()
@@ -31,9 +31,9 @@ local function setup_ipc()
     local tmpdir = os.getenv("TMPDIR")
     if tmpdir and tmpdir ~= "" then
       if tmpdir:sub(-1) == "/" then tmpdir = tmpdir:sub(1, -2) end
-      ipc_dir = tmpdir .. "/reaper_mcp"
+      ipc_dir = tmpdir .. "/reaper_mcp_v09"
     else
-      ipc_dir = "/tmp/reaper_mcp"
+      ipc_dir = "/tmp/reaper_mcp_v09"
     end
   end
   -- Use REAPER's native directory API instead of os.execute so an
@@ -892,6 +892,916 @@ end
 -- ============================================================
 -- TRANSPORT handlers
 -- ============================================================
+
+-- BEGIN GENERATED REAPER API CATALOG
+local native_catalog = {
+  ["APIExists"] = {fn=function(...) return reaper.APIExists(...) end, args={{kind="string",optional=false}}, returns={"boolean"}},
+  ["APITest"] = {fn=function(...) return reaper.APITest(...) end, args={}, returns={}},
+  ["AddMediaItemToTrack"] = {fn=function(...) return reaper.AddMediaItemToTrack(...) end, args={{kind="MediaTrack",optional=false}}, returns={"MediaItem"}},
+  ["AddProjectMarker"] = {fn=function(...) return reaper.AddProjectMarker(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["AddProjectMarker2"] = {fn=function(...) return reaper.AddProjectMarker2(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["AddRegionOrMarker"] = {fn=function(...) return reaper.AddRegionOrMarker(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"ProjectMarker"}},
+  ["AddTakeToMediaItem"] = {fn=function(...) return reaper.AddTakeToMediaItem(...) end, args={{kind="MediaItem",optional=false}}, returns={"MediaItem_Take"}},
+  ["AddTempoTimeSigMarker"] = {fn=function(...) return reaper.AddTempoTimeSigMarker(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["AnyTrackSolo"] = {fn=function(...) return reaper.AnyTrackSolo(...) end, args={{kind="ReaProject",optional=false}}, returns={"boolean"}},
+  ["ApplyNudge"] = {fn=function(...) return reaper.ApplyNudge(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="boolean",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["ArmCommand"] = {fn=function(...) return reaper.ArmCommand(...) end, args={{kind="integer",optional=false},{kind="string",optional=false}}, returns={}},
+  ["AudioAccessorStateChanged"] = {fn=function(...) return reaper.AudioAccessorStateChanged(...) end, args={{kind="AudioAccessor",optional=false}}, returns={"boolean"}},
+  ["AudioAccessorUpdate"] = {fn=function(...) return reaper.AudioAccessorUpdate(...) end, args={{kind="AudioAccessor",optional=false}}, returns={}},
+  ["AudioAccessorValidateState"] = {fn=function(...) return reaper.AudioAccessorValidateState(...) end, args={{kind="AudioAccessor",optional=false}}, returns={"boolean"}},
+  ["Audio_Init"] = {fn=function(...) return reaper.Audio_Init(...) end, args={}, returns={}},
+  ["Audio_IsPreBuffer"] = {fn=function(...) return reaper.Audio_IsPreBuffer(...) end, args={}, returns={"integer"}},
+  ["Audio_IsRunning"] = {fn=function(...) return reaper.Audio_IsRunning(...) end, args={}, returns={"integer"}},
+  ["Audio_Quit"] = {fn=function(...) return reaper.Audio_Quit(...) end, args={}, returns={}},
+  ["BypassFxAllTracks"] = {fn=function(...) return reaper.BypassFxAllTracks(...) end, args={{kind="integer",optional=false}}, returns={}},
+  ["CSurf_FlushUndo"] = {fn=function(...) return reaper.CSurf_FlushUndo(...) end, args={{kind="boolean",optional=false}}, returns={}},
+  ["CSurf_GetTouchState"] = {fn=function(...) return reaper.CSurf_GetTouchState(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["CSurf_GoEnd"] = {fn=function(...) return reaper.CSurf_GoEnd(...) end, args={}, returns={}},
+  ["CSurf_GoStart"] = {fn=function(...) return reaper.CSurf_GoStart(...) end, args={}, returns={}},
+  ["CSurf_NumTracks"] = {fn=function(...) return reaper.CSurf_NumTracks(...) end, args={{kind="boolean",optional=false}}, returns={"integer"}},
+  ["CSurf_OnArrow"] = {fn=function(...) return reaper.CSurf_OnArrow(...) end, args={{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["CSurf_OnFXChange"] = {fn=function(...) return reaper.CSurf_OnFXChange(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["CSurf_OnFwd"] = {fn=function(...) return reaper.CSurf_OnFwd(...) end, args={{kind="integer",optional=false}}, returns={}},
+  ["CSurf_OnInputMonitorChange"] = {fn=function(...) return reaper.CSurf_OnInputMonitorChange(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["CSurf_OnInputMonitorChangeEx"] = {fn=function(...) return reaper.CSurf_OnInputMonitorChangeEx(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"integer"}},
+  ["CSurf_OnMuteChange"] = {fn=function(...) return reaper.CSurf_OnMuteChange(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["CSurf_OnMuteChangeEx"] = {fn=function(...) return reaper.CSurf_OnMuteChangeEx(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["CSurf_OnPanChange"] = {fn=function(...) return reaper.CSurf_OnPanChange(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["CSurf_OnPanChangeEx"] = {fn=function(...) return reaper.CSurf_OnPanChangeEx(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["CSurf_OnPause"] = {fn=function(...) return reaper.CSurf_OnPause(...) end, args={}, returns={}},
+  ["CSurf_OnPlay"] = {fn=function(...) return reaper.CSurf_OnPlay(...) end, args={}, returns={}},
+  ["CSurf_OnPlayRateChange"] = {fn=function(...) return reaper.CSurf_OnPlayRateChange(...) end, args={{kind="number",optional=false}}, returns={}},
+  ["CSurf_OnRecArmChange"] = {fn=function(...) return reaper.CSurf_OnRecArmChange(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["CSurf_OnRecArmChangeEx"] = {fn=function(...) return reaper.CSurf_OnRecArmChangeEx(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["CSurf_OnRecord"] = {fn=function(...) return reaper.CSurf_OnRecord(...) end, args={}, returns={}},
+  ["CSurf_OnRecvPanChange"] = {fn=function(...) return reaper.CSurf_OnRecvPanChange(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["CSurf_OnRecvVolumeChange"] = {fn=function(...) return reaper.CSurf_OnRecvVolumeChange(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["CSurf_OnRew"] = {fn=function(...) return reaper.CSurf_OnRew(...) end, args={{kind="integer",optional=false}}, returns={}},
+  ["CSurf_OnRewFwd"] = {fn=function(...) return reaper.CSurf_OnRewFwd(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["CSurf_OnScroll"] = {fn=function(...) return reaper.CSurf_OnScroll(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["CSurf_OnSelectedChange"] = {fn=function(...) return reaper.CSurf_OnSelectedChange(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["CSurf_OnSendPanChange"] = {fn=function(...) return reaper.CSurf_OnSendPanChange(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["CSurf_OnSendVolumeChange"] = {fn=function(...) return reaper.CSurf_OnSendVolumeChange(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["CSurf_OnSoloChange"] = {fn=function(...) return reaper.CSurf_OnSoloChange(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["CSurf_OnSoloChangeEx"] = {fn=function(...) return reaper.CSurf_OnSoloChangeEx(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["CSurf_OnStop"] = {fn=function(...) return reaper.CSurf_OnStop(...) end, args={}, returns={}},
+  ["CSurf_OnTempoChange"] = {fn=function(...) return reaper.CSurf_OnTempoChange(...) end, args={{kind="number",optional=false}}, returns={}},
+  ["CSurf_OnTrackSelection"] = {fn=function(...) return reaper.CSurf_OnTrackSelection(...) end, args={{kind="MediaTrack",optional=false}}, returns={}},
+  ["CSurf_OnVolumeChange"] = {fn=function(...) return reaper.CSurf_OnVolumeChange(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["CSurf_OnVolumeChangeEx"] = {fn=function(...) return reaper.CSurf_OnVolumeChangeEx(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["CSurf_OnWidthChange"] = {fn=function(...) return reaper.CSurf_OnWidthChange(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["CSurf_OnWidthChangeEx"] = {fn=function(...) return reaper.CSurf_OnWidthChangeEx(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["CSurf_OnZoom"] = {fn=function(...) return reaper.CSurf_OnZoom(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["CSurf_ResetAllCachedVolPanStates"] = {fn=function(...) return reaper.CSurf_ResetAllCachedVolPanStates(...) end, args={}, returns={}},
+  ["CSurf_ScrubAmt"] = {fn=function(...) return reaper.CSurf_ScrubAmt(...) end, args={{kind="number",optional=false}}, returns={}},
+  ["CSurf_SetAutoMode"] = {fn=function(...) return reaper.CSurf_SetAutoMode(...) end, args={{kind="integer",optional=false},{kind="IReaperControlSurface",optional=false}}, returns={}},
+  ["CSurf_SetPlayState"] = {fn=function(...) return reaper.CSurf_SetPlayState(...) end, args={{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="IReaperControlSurface",optional=false}}, returns={}},
+  ["CSurf_SetRepeatState"] = {fn=function(...) return reaper.CSurf_SetRepeatState(...) end, args={{kind="boolean",optional=false},{kind="IReaperControlSurface",optional=false}}, returns={}},
+  ["CSurf_SetSurfaceMute"] = {fn=function(...) return reaper.CSurf_SetSurfaceMute(...) end, args={{kind="MediaTrack",optional=false},{kind="boolean",optional=false},{kind="IReaperControlSurface",optional=false}}, returns={}},
+  ["CSurf_SetSurfacePan"] = {fn=function(...) return reaper.CSurf_SetSurfacePan(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="IReaperControlSurface",optional=false}}, returns={}},
+  ["CSurf_SetSurfaceRecArm"] = {fn=function(...) return reaper.CSurf_SetSurfaceRecArm(...) end, args={{kind="MediaTrack",optional=false},{kind="boolean",optional=false},{kind="IReaperControlSurface",optional=false}}, returns={}},
+  ["CSurf_SetSurfaceSelected"] = {fn=function(...) return reaper.CSurf_SetSurfaceSelected(...) end, args={{kind="MediaTrack",optional=false},{kind="boolean",optional=false},{kind="IReaperControlSurface",optional=false}}, returns={}},
+  ["CSurf_SetSurfaceSolo"] = {fn=function(...) return reaper.CSurf_SetSurfaceSolo(...) end, args={{kind="MediaTrack",optional=false},{kind="boolean",optional=false},{kind="IReaperControlSurface",optional=false}}, returns={}},
+  ["CSurf_SetSurfaceVolume"] = {fn=function(...) return reaper.CSurf_SetSurfaceVolume(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="IReaperControlSurface",optional=false}}, returns={}},
+  ["CSurf_SetTrackListChange"] = {fn=function(...) return reaper.CSurf_SetTrackListChange(...) end, args={}, returns={}},
+  ["CSurf_TrackFromID"] = {fn=function(...) return reaper.CSurf_TrackFromID(...) end, args={{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"MediaTrack"}},
+  ["CSurf_TrackToID"] = {fn=function(...) return reaper.CSurf_TrackToID(...) end, args={{kind="MediaTrack",optional=false},{kind="boolean",optional=false}}, returns={"integer"}},
+  ["CalcMediaSrcLoudness"] = {fn=function(...) return reaper.CalcMediaSrcLoudness(...) end, args={{kind="PCM_source",optional=false}}, returns={"integer"}},
+  ["CalculateNormalization"] = {fn=function(...) return reaper.CalculateNormalization(...) end, args={{kind="PCM_source",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["ClearAllRecArmed"] = {fn=function(...) return reaper.ClearAllRecArmed(...) end, args={}, returns={}},
+  ["ClearConsole"] = {fn=function(...) return reaper.ClearConsole(...) end, args={}, returns={}},
+  ["ClearPeakCache"] = {fn=function(...) return reaper.ClearPeakCache(...) end, args={}, returns={}},
+  ["ColorFromNative"] = {fn=function(...) return reaper.ColorFromNative(...) end, args={{kind="integer",optional=false}}, returns={"integer","integer","integer"}},
+  ["ColorToNative"] = {fn=function(...) return reaper.ColorToNative(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["CountActionShortcuts"] = {fn=function(...) return reaper.CountActionShortcuts(...) end, args={{kind="KbdSectionInfo",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["CountAutomationItems"] = {fn=function(...) return reaper.CountAutomationItems(...) end, args={{kind="TrackEnvelope",optional=false}}, returns={"integer"}},
+  ["CountEnvelopePoints"] = {fn=function(...) return reaper.CountEnvelopePoints(...) end, args={{kind="TrackEnvelope",optional=false}}, returns={"integer"}},
+  ["CountEnvelopePointsEx"] = {fn=function(...) return reaper.CountEnvelopePointsEx(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["CountMediaItems"] = {fn=function(...) return reaper.CountMediaItems(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["CountProjectMarkers"] = {fn=function(...) return reaper.CountProjectMarkers(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer","integer","integer"}},
+  ["CountSelectedMediaItems"] = {fn=function(...) return reaper.CountSelectedMediaItems(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["CountSelectedTracks"] = {fn=function(...) return reaper.CountSelectedTracks(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["CountSelectedTracks2"] = {fn=function(...) return reaper.CountSelectedTracks2(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false}}, returns={"integer"}},
+  ["CountTCPFXParms"] = {fn=function(...) return reaper.CountTCPFXParms(...) end, args={{kind="ReaProject",optional=false},{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["CountTakeEnvelopes"] = {fn=function(...) return reaper.CountTakeEnvelopes(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"integer"}},
+  ["CountTakes"] = {fn=function(...) return reaper.CountTakes(...) end, args={{kind="MediaItem",optional=false}}, returns={"integer"}},
+  ["CountTempoTimeSigMarkers"] = {fn=function(...) return reaper.CountTempoTimeSigMarkers(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["CountTrackEnvelopes"] = {fn=function(...) return reaper.CountTrackEnvelopes(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["CountTrackMediaItems"] = {fn=function(...) return reaper.CountTrackMediaItems(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["CountTracks"] = {fn=function(...) return reaper.CountTracks(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["CreateNewMIDIItemInProj"] = {fn=function(...) return reaper.CreateNewMIDIItemInProj(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="boolean",optional=true}}, returns={"MediaItem"}},
+  ["CreateTakeAudioAccessor"] = {fn=function(...) return reaper.CreateTakeAudioAccessor(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"AudioAccessor"}},
+  ["CreateTrackAudioAccessor"] = {fn=function(...) return reaper.CreateTrackAudioAccessor(...) end, args={{kind="MediaTrack",optional=false}}, returns={"AudioAccessor"}},
+  ["CreateTrackSend"] = {fn=function(...) return reaper.CreateTrackSend(...) end, args={{kind="MediaTrack",optional=false},{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["CrossfadeEditor_OnCommand"] = {fn=function(...) return reaper.CrossfadeEditor_OnCommand(...) end, args={{kind="integer",optional=false}}, returns={}},
+  ["CrossfadeEditor_Show"] = {fn=function(...) return reaper.CrossfadeEditor_Show(...) end, args={{kind="boolean",optional=false}}, returns={}},
+  ["DB2SLIDER"] = {fn=function(...) return reaper.DB2SLIDER(...) end, args={{kind="number",optional=false}}, returns={"number"}},
+  ["DeleteActionShortcut"] = {fn=function(...) return reaper.DeleteActionShortcut(...) end, args={{kind="KbdSectionInfo",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["DeleteEnvelopePointEx"] = {fn=function(...) return reaper.DeleteEnvelopePointEx(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["DeleteEnvelopePointRange"] = {fn=function(...) return reaper.DeleteEnvelopePointRange(...) end, args={{kind="TrackEnvelope",optional=false},{kind="number",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["DeleteEnvelopePointRangeEx"] = {fn=function(...) return reaper.DeleteEnvelopePointRangeEx(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["DeleteExtState"] = {fn=function(...) return reaper.DeleteExtState(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["DeleteProjectMarker"] = {fn=function(...) return reaper.DeleteProjectMarker(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["DeleteProjectMarkerByIndex"] = {fn=function(...) return reaper.DeleteProjectMarkerByIndex(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["DeleteTakeMarker"] = {fn=function(...) return reaper.DeleteTakeMarker(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["DeleteTakeStretchMarkers"] = {fn=function(...) return reaper.DeleteTakeStretchMarkers(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=true}}, returns={"integer"}},
+  ["DeleteTempoTimeSigMarker"] = {fn=function(...) return reaper.DeleteTempoTimeSigMarker(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["DeleteTrack"] = {fn=function(...) return reaper.DeleteTrack(...) end, args={{kind="MediaTrack",optional=false}}, returns={}},
+  ["DeleteTrackMediaItem"] = {fn=function(...) return reaper.DeleteTrackMediaItem(...) end, args={{kind="MediaTrack",optional=false},{kind="MediaItem",optional=false}}, returns={"boolean"}},
+  ["DestroyAudioAccessor"] = {fn=function(...) return reaper.DestroyAudioAccessor(...) end, args={{kind="AudioAccessor",optional=false}}, returns={}},
+  ["DoActionShortcutDialog"] = {fn=function(...) return reaper.DoActionShortcutDialog(...) end, args={{kind="HWND",optional=false},{kind="KbdSectionInfo",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["DockGetPosition"] = {fn=function(...) return reaper.DockGetPosition(...) end, args={{kind="integer",optional=false}}, returns={"integer"}},
+  ["DockIsChildOfDock"] = {fn=function(...) return reaper.DockIsChildOfDock(...) end, args={{kind="HWND",optional=false}}, returns={"integer","boolean"}},
+  ["DockWindowActivate"] = {fn=function(...) return reaper.DockWindowActivate(...) end, args={{kind="HWND",optional=false}}, returns={}},
+  ["DockWindowAdd"] = {fn=function(...) return reaper.DockWindowAdd(...) end, args={{kind="HWND",optional=false},{kind="string",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["DockWindowAddEx"] = {fn=function(...) return reaper.DockWindowAddEx(...) end, args={{kind="HWND",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["DockWindowRefresh"] = {fn=function(...) return reaper.DockWindowRefresh(...) end, args={}, returns={}},
+  ["DockWindowRefreshForHWND"] = {fn=function(...) return reaper.DockWindowRefreshForHWND(...) end, args={{kind="HWND",optional=false}}, returns={}},
+  ["DockWindowRemove"] = {fn=function(...) return reaper.DockWindowRemove(...) end, args={{kind="HWND",optional=false}}, returns={}},
+  ["Dock_UpdateDockID"] = {fn=function(...) return reaper.Dock_UpdateDockID(...) end, args={{kind="string",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["EditTempoTimeSigMarker"] = {fn=function(...) return reaper.EditTempoTimeSigMarker(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["EnsureNotCompletelyOffscreen"] = {fn=function(...) return reaper.EnsureNotCompletelyOffscreen(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer","integer","integer","integer"}},
+  ["EnumInstalledFX"] = {fn=function(...) return reaper.EnumInstalledFX(...) end, args={{kind="integer",optional=false}}, returns={"boolean","string","string"}},
+  ["EnumPitchShiftModes"] = {fn=function(...) return reaper.EnumPitchShiftModes(...) end, args={{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["EnumPitchShiftSubModes"] = {fn=function(...) return reaper.EnumPitchShiftSubModes(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["EnumProjExtState"] = {fn=function(...) return reaper.EnumProjExtState(...) end, args={{kind="ReaProject",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"boolean","optional","string","optional","string"}},
+  ["EnumProjectMarkers"] = {fn=function(...) return reaper.EnumProjectMarkers(...) end, args={{kind="integer",optional=false}}, returns={"integer","boolean","number","number","string","integer"}},
+  ["EnumProjectMarkers2"] = {fn=function(...) return reaper.EnumProjectMarkers2(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"integer","boolean","number","number","string","integer"}},
+  ["EnumProjectMarkers3"] = {fn=function(...) return reaper.EnumProjectMarkers3(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"integer","boolean","number","number","string","integer","integer"}},
+  ["EnumProjects"] = {fn=function(...) return reaper.EnumProjects(...) end, args={{kind="integer",optional=false}}, returns={"ReaProject","optional","string"}},
+  ["EnumRegionRenderMatrix"] = {fn=function(...) return reaper.EnumRegionRenderMatrix(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"MediaTrack"}},
+  ["EnumThemeColors"] = {fn=function(...) return reaper.EnumThemeColors(...) end, args={{kind="integer",optional=false}}, returns={"string","optional integer","optional","string"}},
+  ["EnumTrackMIDIProgramNames"] = {fn=function(...) return reaper.EnumTrackMIDIProgramNames(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["EnumTrackMIDIProgramNamesEx"] = {fn=function(...) return reaper.EnumTrackMIDIProgramNamesEx(...) end, args={{kind="ReaProject",optional=false},{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["EnumerateFiles"] = {fn=function(...) return reaper.EnumerateFiles(...) end, args={{kind="string",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["EnumerateSubdirectories"] = {fn=function(...) return reaper.EnumerateSubdirectories(...) end, args={{kind="string",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["Envelope_Evaluate"] = {fn=function(...) return reaper.Envelope_Evaluate(...) end, args={{kind="TrackEnvelope",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="integer",optional=false}}, returns={"integer","number","number","number","number"}},
+  ["Envelope_FormatValue"] = {fn=function(...) return reaper.Envelope_FormatValue(...) end, args={{kind="TrackEnvelope",optional=false},{kind="number",optional=false}}, returns={"string"}},
+  ["Envelope_GetParentTake"] = {fn=function(...) return reaper.Envelope_GetParentTake(...) end, args={{kind="TrackEnvelope",optional=false}}, returns={"MediaItem_Take","integer","integer"}},
+  ["Envelope_GetParentTrack"] = {fn=function(...) return reaper.Envelope_GetParentTrack(...) end, args={{kind="TrackEnvelope",optional=false}}, returns={"MediaTrack","integer","integer"}},
+  ["Envelope_SortPoints"] = {fn=function(...) return reaper.Envelope_SortPoints(...) end, args={{kind="TrackEnvelope",optional=false}}, returns={"boolean"}},
+  ["Envelope_SortPointsEx"] = {fn=function(...) return reaper.Envelope_SortPointsEx(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["FindTempoTimeSigMarker"] = {fn=function(...) return reaper.FindTempoTimeSigMarker(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"integer"}},
+  ["GR_SelectColor"] = {fn=function(...) return reaper.GR_SelectColor(...) end, args={{kind="HWND",optional=false}}, returns={"integer","integer"}},
+  ["GSC_mainwnd"] = {fn=function(...) return reaper.GSC_mainwnd(...) end, args={{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetActionShortcutDesc"] = {fn=function(...) return reaper.GetActionShortcutDesc(...) end, args={{kind="KbdSectionInfo",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["GetActiveTake"] = {fn=function(...) return reaper.GetActiveTake(...) end, args={{kind="MediaItem",optional=false}}, returns={"MediaItem_Take"}},
+  ["GetAllProjectPlayStates"] = {fn=function(...) return reaper.GetAllProjectPlayStates(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["GetAppVersion"] = {fn=function(...) return reaper.GetAppVersion(...) end, args={}, returns={"string"}},
+  ["GetArmedCommand"] = {fn=function(...) return reaper.GetArmedCommand(...) end, args={}, returns={"integer","string"}},
+  ["GetAudioAccessorEndTime"] = {fn=function(...) return reaper.GetAudioAccessorEndTime(...) end, args={{kind="AudioAccessor",optional=false}}, returns={"number"}},
+  ["GetAudioAccessorHash"] = {fn=function(...) return reaper.GetAudioAccessorHash(...) end, args={{kind="AudioAccessor",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["GetAudioAccessorSamples"] = {fn=function(...) return reaper.GetAudioAccessorSamples(...) end, args={{kind="AudioAccessor",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="reaper.array",optional=false}}, returns={"integer"}},
+  ["GetAudioAccessorStartTime"] = {fn=function(...) return reaper.GetAudioAccessorStartTime(...) end, args={{kind="AudioAccessor",optional=false}}, returns={"number"}},
+  ["GetAudioDeviceInfo"] = {fn=function(...) return reaper.GetAudioDeviceInfo(...) end, args={{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GetConfigWantsDock"] = {fn=function(...) return reaper.GetConfigWantsDock(...) end, args={{kind="string",optional=false}}, returns={"integer"}},
+  ["GetCurrentProjectInLoadSave"] = {fn=function(...) return reaper.GetCurrentProjectInLoadSave(...) end, args={}, returns={"ReaProject"}},
+  ["GetCursorContext"] = {fn=function(...) return reaper.GetCursorContext(...) end, args={}, returns={"integer"}},
+  ["GetCursorContext2"] = {fn=function(...) return reaper.GetCursorContext2(...) end, args={{kind="boolean",optional=false}}, returns={"integer"}},
+  ["GetCursorPosition"] = {fn=function(...) return reaper.GetCursorPosition(...) end, args={}, returns={"number"}},
+  ["GetCursorPositionEx"] = {fn=function(...) return reaper.GetCursorPositionEx(...) end, args={{kind="ReaProject",optional=false}}, returns={"number"}},
+  ["GetDisplayedMediaItemColor"] = {fn=function(...) return reaper.GetDisplayedMediaItemColor(...) end, args={{kind="MediaItem",optional=false}}, returns={"integer"}},
+  ["GetDisplayedMediaItemColor2"] = {fn=function(...) return reaper.GetDisplayedMediaItemColor2(...) end, args={{kind="MediaItem",optional=false},{kind="MediaItem_Take",optional=false}}, returns={"integer"}},
+  ["GetEnvelopeInfo_Value"] = {fn=function(...) return reaper.GetEnvelopeInfo_Value(...) end, args={{kind="TrackEnvelope",optional=false},{kind="string",optional=false}}, returns={"number"}},
+  ["GetEnvelopeName"] = {fn=function(...) return reaper.GetEnvelopeName(...) end, args={{kind="TrackEnvelope",optional=false}}, returns={"boolean","string"}},
+  ["GetEnvelopePoint"] = {fn=function(...) return reaper.GetEnvelopePoint(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false}}, returns={"boolean","number","number","integer","number","boolean"}},
+  ["GetEnvelopePointByTime"] = {fn=function(...) return reaper.GetEnvelopePointByTime(...) end, args={{kind="TrackEnvelope",optional=false},{kind="number",optional=false}}, returns={"integer"}},
+  ["GetEnvelopePointByTimeEx"] = {fn=function(...) return reaper.GetEnvelopePointByTimeEx(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false},{kind="number",optional=false}}, returns={"integer"}},
+  ["GetEnvelopePointEx"] = {fn=function(...) return reaper.GetEnvelopePointEx(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","number","number","integer","number","boolean"}},
+  ["GetEnvelopeScalingMode"] = {fn=function(...) return reaper.GetEnvelopeScalingMode(...) end, args={{kind="TrackEnvelope",optional=false}}, returns={"integer"}},
+  ["GetEnvelopeStateChunk"] = {fn=function(...) return reaper.GetEnvelopeStateChunk(...) end, args={{kind="TrackEnvelope",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetEnvelopeUIState"] = {fn=function(...) return reaper.GetEnvelopeUIState(...) end, args={{kind="TrackEnvelope",optional=false}}, returns={"integer"}},
+  ["GetExePath"] = {fn=function(...) return reaper.GetExePath(...) end, args={}, returns={"string"}},
+  ["GetExtState"] = {fn=function(...) return reaper.GetExtState(...) end, args={{kind="string",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["GetFXEnvelope"] = {fn=function(...) return reaper.GetFXEnvelope(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"TrackEnvelope"}},
+  ["GetFocusedFX"] = {fn=function(...) return reaper.GetFocusedFX(...) end, args={}, returns={"integer","integer","integer","integer"}},
+  ["GetFocusedFX2"] = {fn=function(...) return reaper.GetFocusedFX2(...) end, args={}, returns={"integer","integer","integer","integer"}},
+  ["GetFreeDiskSpaceForRecordPath"] = {fn=function(...) return reaper.GetFreeDiskSpaceForRecordPath(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetGlobalAutomationOverride"] = {fn=function(...) return reaper.GetGlobalAutomationOverride(...) end, args={}, returns={"integer"}},
+  ["GetHZoomLevel"] = {fn=function(...) return reaper.GetHZoomLevel(...) end, args={}, returns={"number"}},
+  ["GetInputActivityLevel"] = {fn=function(...) return reaper.GetInputActivityLevel(...) end, args={{kind="integer",optional=false}}, returns={"number"}},
+  ["GetInputChannelName"] = {fn=function(...) return reaper.GetInputChannelName(...) end, args={{kind="integer",optional=false}}, returns={"string"}},
+  ["GetInputOutputLatency"] = {fn=function(...) return reaper.GetInputOutputLatency(...) end, args={}, returns={"integer","integer"}},
+  ["GetItemEditingTime2"] = {fn=function(...) return reaper.GetItemEditingTime2(...) end, args={}, returns={"number","PCM_source","integer"}},
+  ["GetItemFromPoint"] = {fn=function(...) return reaper.GetItemFromPoint(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"MediaItem","MediaItem_Take"}},
+  ["GetItemProjectContext"] = {fn=function(...) return reaper.GetItemProjectContext(...) end, args={{kind="MediaItem",optional=false}}, returns={"ReaProject"}},
+  ["GetItemStateChunk"] = {fn=function(...) return reaper.GetItemStateChunk(...) end, args={{kind="MediaItem",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetLastColorThemeFile"] = {fn=function(...) return reaper.GetLastColorThemeFile(...) end, args={}, returns={"string"}},
+  ["GetLastMarkerAndCurRegion"] = {fn=function(...) return reaper.GetLastMarkerAndCurRegion(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"integer","integer"}},
+  ["GetLastTouchedFX"] = {fn=function(...) return reaper.GetLastTouchedFX(...) end, args={}, returns={"boolean","integer","integer","integer"}},
+  ["GetLastTouchedTrack"] = {fn=function(...) return reaper.GetLastTouchedTrack(...) end, args={}, returns={"MediaTrack"}},
+  ["GetMIDIInputName"] = {fn=function(...) return reaper.GetMIDIInputName(...) end, args={{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GetMIDIInputNameNoAlias"] = {fn=function(...) return reaper.GetMIDIInputNameNoAlias(...) end, args={{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GetMIDIOutputName"] = {fn=function(...) return reaper.GetMIDIOutputName(...) end, args={{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GetMIDIOutputNameNoAlias"] = {fn=function(...) return reaper.GetMIDIOutputNameNoAlias(...) end, args={{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GetMainHwnd"] = {fn=function(...) return reaper.GetMainHwnd(...) end, args={}, returns={"HWND"}},
+  ["GetMasterMuteSoloFlags"] = {fn=function(...) return reaper.GetMasterMuteSoloFlags(...) end, args={}, returns={"integer"}},
+  ["GetMasterTrack"] = {fn=function(...) return reaper.GetMasterTrack(...) end, args={{kind="ReaProject",optional=false}}, returns={"MediaTrack"}},
+  ["GetMasterTrackVisibility"] = {fn=function(...) return reaper.GetMasterTrackVisibility(...) end, args={}, returns={"integer"}},
+  ["GetMaxMidiInputs"] = {fn=function(...) return reaper.GetMaxMidiInputs(...) end, args={}, returns={"integer"}},
+  ["GetMaxMidiOutputs"] = {fn=function(...) return reaper.GetMaxMidiOutputs(...) end, args={}, returns={"integer"}},
+  ["GetMediaFileMetadata"] = {fn=function(...) return reaper.GetMediaFileMetadata(...) end, args={{kind="PCM_source",optional=false},{kind="string",optional=false}}, returns={"integer","string"}},
+  ["GetMediaItem"] = {fn=function(...) return reaper.GetMediaItem(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"MediaItem"}},
+  ["GetMediaItemInfo_Value"] = {fn=function(...) return reaper.GetMediaItemInfo_Value(...) end, args={{kind="MediaItem",optional=false},{kind="string",optional=false}}, returns={"number"}},
+  ["GetMediaItemNumTakes"] = {fn=function(...) return reaper.GetMediaItemNumTakes(...) end, args={{kind="MediaItem",optional=false}}, returns={"integer"}},
+  ["GetMediaItemTake"] = {fn=function(...) return reaper.GetMediaItemTake(...) end, args={{kind="MediaItem",optional=false},{kind="integer",optional=false}}, returns={"MediaItem_Take"}},
+  ["GetMediaItemTakeByGUID"] = {fn=function(...) return reaper.GetMediaItemTakeByGUID(...) end, args={{kind="ReaProject",optional=false},{kind="string",optional=false}}, returns={"MediaItem_Take"}},
+  ["GetMediaItemTakeInfo_Value"] = {fn=function(...) return reaper.GetMediaItemTakeInfo_Value(...) end, args={{kind="MediaItem_Take",optional=false},{kind="string",optional=false}}, returns={"number"}},
+  ["GetMediaItemTake_Item"] = {fn=function(...) return reaper.GetMediaItemTake_Item(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"MediaItem"}},
+  ["GetMediaItemTake_Peaks"] = {fn=function(...) return reaper.GetMediaItemTake_Peaks(...) end, args={{kind="MediaItem_Take",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="reaper.array",optional=false}}, returns={"integer"}},
+  ["GetMediaItemTake_Source"] = {fn=function(...) return reaper.GetMediaItemTake_Source(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"PCM_source"}},
+  ["GetMediaItemTake_Track"] = {fn=function(...) return reaper.GetMediaItemTake_Track(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"MediaTrack"}},
+  ["GetMediaItemTrack"] = {fn=function(...) return reaper.GetMediaItemTrack(...) end, args={{kind="MediaItem",optional=false}}, returns={"MediaTrack"}},
+  ["GetMediaItem_Track"] = {fn=function(...) return reaper.GetMediaItem_Track(...) end, args={{kind="MediaItem",optional=false}}, returns={"MediaTrack"}},
+  ["GetMediaSourceFileName"] = {fn=function(...) return reaper.GetMediaSourceFileName(...) end, args={{kind="PCM_source",optional=false}}, returns={"string"}},
+  ["GetMediaSourceLength"] = {fn=function(...) return reaper.GetMediaSourceLength(...) end, args={{kind="PCM_source",optional=false}}, returns={"number","boolean"}},
+  ["GetMediaSourceNumChannels"] = {fn=function(...) return reaper.GetMediaSourceNumChannels(...) end, args={{kind="PCM_source",optional=false}}, returns={"integer"}},
+  ["GetMediaSourceParent"] = {fn=function(...) return reaper.GetMediaSourceParent(...) end, args={{kind="PCM_source",optional=false}}, returns={"PCM_source"}},
+  ["GetMediaSourceSampleRate"] = {fn=function(...) return reaper.GetMediaSourceSampleRate(...) end, args={{kind="PCM_source",optional=false}}, returns={"integer"}},
+  ["GetMediaSourceType"] = {fn=function(...) return reaper.GetMediaSourceType(...) end, args={{kind="PCM_source",optional=false}}, returns={"string"}},
+  ["GetMediaTrackInfo_Value"] = {fn=function(...) return reaper.GetMediaTrackInfo_Value(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false}}, returns={"number"}},
+  ["GetMixerScroll"] = {fn=function(...) return reaper.GetMixerScroll(...) end, args={}, returns={"MediaTrack"}},
+  ["GetMouseModifier"] = {fn=function(...) return reaper.GetMouseModifier(...) end, args={{kind="string",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["GetMousePosition"] = {fn=function(...) return reaper.GetMousePosition(...) end, args={}, returns={"integer","integer"}},
+  ["GetNumAudioInputs"] = {fn=function(...) return reaper.GetNumAudioInputs(...) end, args={}, returns={"integer"}},
+  ["GetNumAudioOutputs"] = {fn=function(...) return reaper.GetNumAudioOutputs(...) end, args={}, returns={"integer"}},
+  ["GetNumMIDIInputs"] = {fn=function(...) return reaper.GetNumMIDIInputs(...) end, args={}, returns={"integer"}},
+  ["GetNumMIDIOutputs"] = {fn=function(...) return reaper.GetNumMIDIOutputs(...) end, args={}, returns={"integer"}},
+  ["GetNumRegionsOrMarkers"] = {fn=function(...) return reaper.GetNumRegionsOrMarkers(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["GetNumTakeMarkers"] = {fn=function(...) return reaper.GetNumTakeMarkers(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"integer"}},
+  ["GetNumTracks"] = {fn=function(...) return reaper.GetNumTracks(...) end, args={}, returns={"integer"}},
+  ["GetOS"] = {fn=function(...) return reaper.GetOS(...) end, args={}, returns={"string"}},
+  ["GetOutputChannelName"] = {fn=function(...) return reaper.GetOutputChannelName(...) end, args={{kind="integer",optional=false}}, returns={"string"}},
+  ["GetOutputLatency"] = {fn=function(...) return reaper.GetOutputLatency(...) end, args={}, returns={"number"}},
+  ["GetParentTrack"] = {fn=function(...) return reaper.GetParentTrack(...) end, args={{kind="MediaTrack",optional=false}}, returns={"MediaTrack"}},
+  ["GetPeakFileName"] = {fn=function(...) return reaper.GetPeakFileName(...) end, args={{kind="string",optional=false}}, returns={"string"}},
+  ["GetPeakFileNameEx"] = {fn=function(...) return reaper.GetPeakFileNameEx(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"string"}},
+  ["GetPeakFileNameEx2"] = {fn=function(...) return reaper.GetPeakFileNameEx2(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["GetPlayPosition"] = {fn=function(...) return reaper.GetPlayPosition(...) end, args={}, returns={"number"}},
+  ["GetPlayPosition2"] = {fn=function(...) return reaper.GetPlayPosition2(...) end, args={}, returns={"number"}},
+  ["GetPlayPosition2Ex"] = {fn=function(...) return reaper.GetPlayPosition2Ex(...) end, args={{kind="ReaProject",optional=false}}, returns={"number"}},
+  ["GetPlayPositionEx"] = {fn=function(...) return reaper.GetPlayPositionEx(...) end, args={{kind="ReaProject",optional=false}}, returns={"number"}},
+  ["GetPlayState"] = {fn=function(...) return reaper.GetPlayState(...) end, args={}, returns={"integer"}},
+  ["GetPlayStateEx"] = {fn=function(...) return reaper.GetPlayStateEx(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["GetProjExtState"] = {fn=function(...) return reaper.GetProjExtState(...) end, args={{kind="ReaProject",optional=false},{kind="string",optional=false},{kind="string",optional=false}}, returns={"integer","string"}},
+  ["GetProjectLength"] = {fn=function(...) return reaper.GetProjectLength(...) end, args={{kind="ReaProject",optional=false}}, returns={"number"}},
+  ["GetProjectName"] = {fn=function(...) return reaper.GetProjectName(...) end, args={{kind="ReaProject",optional=false}}, returns={"string"}},
+  ["GetProjectPath"] = {fn=function(...) return reaper.GetProjectPath(...) end, args={}, returns={"string"}},
+  ["GetProjectPathEx"] = {fn=function(...) return reaper.GetProjectPathEx(...) end, args={{kind="ReaProject",optional=false}}, returns={"string"}},
+  ["GetProjectStateChangeCount"] = {fn=function(...) return reaper.GetProjectStateChangeCount(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["GetProjectTimeOffset"] = {fn=function(...) return reaper.GetProjectTimeOffset(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["GetProjectTimeSignature"] = {fn=function(...) return reaper.GetProjectTimeSignature(...) end, args={}, returns={"number","number"}},
+  ["GetProjectTimeSignature2"] = {fn=function(...) return reaper.GetProjectTimeSignature2(...) end, args={{kind="ReaProject",optional=false}}, returns={"number","number"}},
+  ["GetRegionOrMarker"] = {fn=function(...) return reaper.GetRegionOrMarker(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"ProjectMarker"}},
+  ["GetRegionOrMarkerInfo_Value"] = {fn=function(...) return reaper.GetRegionOrMarkerInfo_Value(...) end, args={{kind="ReaProject",optional=false},{kind="ProjectMarker",optional=false},{kind="string",optional=false}}, returns={"number"}},
+  ["GetResourcePath"] = {fn=function(...) return reaper.GetResourcePath(...) end, args={}, returns={"string"}},
+  ["GetSelectedEnvelope"] = {fn=function(...) return reaper.GetSelectedEnvelope(...) end, args={{kind="ReaProject",optional=false}}, returns={"TrackEnvelope"}},
+  ["GetSelectedMediaItem"] = {fn=function(...) return reaper.GetSelectedMediaItem(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"MediaItem"}},
+  ["GetSelectedTrack"] = {fn=function(...) return reaper.GetSelectedTrack(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"MediaTrack"}},
+  ["GetSelectedTrack2"] = {fn=function(...) return reaper.GetSelectedTrack2(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"MediaTrack"}},
+  ["GetSelectedTrackEnvelope"] = {fn=function(...) return reaper.GetSelectedTrackEnvelope(...) end, args={{kind="ReaProject",optional=false}}, returns={"TrackEnvelope"}},
+  ["GetSetAutomationItemInfo"] = {fn=function(...) return reaper.GetSetAutomationItemInfo(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false},{kind="string",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["GetSetAutomationItemInfo_String"] = {fn=function(...) return reaper.GetSetAutomationItemInfo_String(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSetEnvelopeInfo_String"] = {fn=function(...) return reaper.GetSetEnvelopeInfo_String(...) end, args={{kind="TrackEnvelope",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSetEnvelopeState"] = {fn=function(...) return reaper.GetSetEnvelopeState(...) end, args={{kind="TrackEnvelope",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GetSetEnvelopeState2"] = {fn=function(...) return reaper.GetSetEnvelopeState2(...) end, args={{kind="TrackEnvelope",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSetItemState"] = {fn=function(...) return reaper.GetSetItemState(...) end, args={{kind="MediaItem",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GetSetItemState2"] = {fn=function(...) return reaper.GetSetItemState2(...) end, args={{kind="MediaItem",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSetMediaItemInfo_String"] = {fn=function(...) return reaper.GetSetMediaItemInfo_String(...) end, args={{kind="MediaItem",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSetMediaItemTakeInfo_String"] = {fn=function(...) return reaper.GetSetMediaItemTakeInfo_String(...) end, args={{kind="MediaItem_Take",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSetMediaTrackInfo_String"] = {fn=function(...) return reaper.GetSetMediaTrackInfo_String(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSetProjectAuthor"] = {fn=function(...) return reaper.GetSetProjectAuthor(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["GetSetProjectGrid"] = {fn=function(...) return reaper.GetSetProjectGrid(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false},{kind="number",optional=true},{kind="integer",optional=true},{kind="number",optional=true}}, returns={"integer","optional number","optional integer","optional number"}},
+  ["GetSetProjectInfo"] = {fn=function(...) return reaper.GetSetProjectInfo(...) end, args={{kind="ReaProject",optional=false},{kind="string",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["GetSetProjectInfo_String"] = {fn=function(...) return reaper.GetSetProjectInfo_String(...) end, args={{kind="ReaProject",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSetProjectNotes"] = {fn=function(...) return reaper.GetSetProjectNotes(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["GetSetRegionOrMarkerInfo_String"] = {fn=function(...) return reaper.GetSetRegionOrMarkerInfo_String(...) end, args={{kind="ReaProject",optional=false},{kind="ProjectMarker",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSetRepeat"] = {fn=function(...) return reaper.GetSetRepeat(...) end, args={{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetSetRepeatEx"] = {fn=function(...) return reaper.GetSetRepeatEx(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetSetTempoTimeSigMarkerBasis"] = {fn=function(...) return reaper.GetSetTempoTimeSigMarkerBasis(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["GetSetTempoTimeSigMarkerFlag"] = {fn=function(...) return reaper.GetSetTempoTimeSigMarkerFlag(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"integer"}},
+  ["GetSetTrackGroupMembership"] = {fn=function(...) return reaper.GetSetTrackGroupMembership(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetSetTrackGroupMembershipEx"] = {fn=function(...) return reaper.GetSetTrackGroupMembershipEx(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetSetTrackGroupMembershipHigh"] = {fn=function(...) return reaper.GetSetTrackGroupMembershipHigh(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetSetTrackSendInfo_String"] = {fn=function(...) return reaper.GetSetTrackSendInfo_String(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSetTrackState"] = {fn=function(...) return reaper.GetSetTrackState(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GetSetTrackState2"] = {fn=function(...) return reaper.GetSetTrackState2(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetSet_ArrangeView2"] = {fn=function(...) return reaper.GetSet_ArrangeView2(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="number",optional=false}}, returns={"number","number"}},
+  ["GetSet_LoopTimeRange"] = {fn=function(...) return reaper.GetSet_LoopTimeRange(...) end, args={{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number","number"}},
+  ["GetSet_LoopTimeRange2"] = {fn=function(...) return reaper.GetSet_LoopTimeRange2(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number","number"}},
+  ["GetSubProjectFromSource"] = {fn=function(...) return reaper.GetSubProjectFromSource(...) end, args={{kind="PCM_source",optional=false}}, returns={"ReaProject"}},
+  ["GetTCPFXParm"] = {fn=function(...) return reaper.GetTCPFXParm(...) end, args={{kind="ReaProject",optional=false},{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean","integer","integer"}},
+  ["GetTake"] = {fn=function(...) return reaper.GetTake(...) end, args={{kind="MediaItem",optional=false},{kind="integer",optional=false}}, returns={"MediaItem_Take"}},
+  ["GetTakeEnvelope"] = {fn=function(...) return reaper.GetTakeEnvelope(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"TrackEnvelope"}},
+  ["GetTakeEnvelopeByName"] = {fn=function(...) return reaper.GetTakeEnvelopeByName(...) end, args={{kind="MediaItem_Take",optional=false},{kind="string",optional=false}}, returns={"TrackEnvelope"}},
+  ["GetTakeMarker"] = {fn=function(...) return reaper.GetTakeMarker(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"number","string","optional integer"}},
+  ["GetTakeName"] = {fn=function(...) return reaper.GetTakeName(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"string"}},
+  ["GetTakeNumStretchMarkers"] = {fn=function(...) return reaper.GetTakeNumStretchMarkers(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"integer"}},
+  ["GetTakeStretchMarker"] = {fn=function(...) return reaper.GetTakeStretchMarker(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"integer","number","optional number"}},
+  ["GetTakeStretchMarkerSlope"] = {fn=function(...) return reaper.GetTakeStretchMarkerSlope(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["GetTempoMatchPlayRate"] = {fn=function(...) return reaper.GetTempoMatchPlayRate(...) end, args={{kind="PCM_source",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="number",optional=false}}, returns={"boolean","number","number"}},
+  ["GetTempoTimeSigMarker"] = {fn=function(...) return reaper.GetTempoTimeSigMarker(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"boolean","number","integer","number","number","integer","integer","boolean"}},
+  ["GetThemeColor"] = {fn=function(...) return reaper.GetThemeColor(...) end, args={{kind="string",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetThingFromPoint"] = {fn=function(...) return reaper.GetThingFromPoint(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"MediaTrack","string"}},
+  ["GetToggleCommandState"] = {fn=function(...) return reaper.GetToggleCommandState(...) end, args={{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetToggleCommandStateEx"] = {fn=function(...) return reaper.GetToggleCommandStateEx(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetTooltipWindow"] = {fn=function(...) return reaper.GetTooltipWindow(...) end, args={}, returns={"HWND"}},
+  ["GetTouchedOrFocusedFX"] = {fn=function(...) return reaper.GetTouchedOrFocusedFX(...) end, args={{kind="integer",optional=false}}, returns={"boolean","integer","integer","integer","integer","integer"}},
+  ["GetTrack"] = {fn=function(...) return reaper.GetTrack(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"MediaTrack"}},
+  ["GetTrackAutomationMode"] = {fn=function(...) return reaper.GetTrackAutomationMode(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["GetTrackColor"] = {fn=function(...) return reaper.GetTrackColor(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["GetTrackDepth"] = {fn=function(...) return reaper.GetTrackDepth(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["GetTrackEnvelope"] = {fn=function(...) return reaper.GetTrackEnvelope(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"TrackEnvelope"}},
+  ["GetTrackEnvelopeByChunkName"] = {fn=function(...) return reaper.GetTrackEnvelopeByChunkName(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false}}, returns={"TrackEnvelope"}},
+  ["GetTrackEnvelopeByName"] = {fn=function(...) return reaper.GetTrackEnvelopeByName(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false}}, returns={"TrackEnvelope"}},
+  ["GetTrackFromPoint"] = {fn=function(...) return reaper.GetTrackFromPoint(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"MediaTrack","optional integer"}},
+  ["GetTrackGUID"] = {fn=function(...) return reaper.GetTrackGUID(...) end, args={{kind="MediaTrack",optional=false}}, returns={"string"}},
+  ["GetTrackMIDILyrics"] = {fn=function(...) return reaper.GetTrackMIDILyrics(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["GetTrackMIDINoteName"] = {fn=function(...) return reaper.GetTrackMIDINoteName(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["GetTrackMIDINoteNameEx"] = {fn=function(...) return reaper.GetTrackMIDINoteNameEx(...) end, args={{kind="ReaProject",optional=false},{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["GetTrackMIDINoteRange"] = {fn=function(...) return reaper.GetTrackMIDINoteRange(...) end, args={{kind="ReaProject",optional=false},{kind="MediaTrack",optional=false}}, returns={"integer","integer"}},
+  ["GetTrackMediaItem"] = {fn=function(...) return reaper.GetTrackMediaItem(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"MediaItem"}},
+  ["GetTrackName"] = {fn=function(...) return reaper.GetTrackName(...) end, args={{kind="MediaTrack",optional=false}}, returns={"boolean","string"}},
+  ["GetTrackNumMediaItems"] = {fn=function(...) return reaper.GetTrackNumMediaItems(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["GetTrackNumSends"] = {fn=function(...) return reaper.GetTrackNumSends(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["GetTrackReceiveName"] = {fn=function(...) return reaper.GetTrackReceiveName(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["GetTrackReceiveUIMute"] = {fn=function(...) return reaper.GetTrackReceiveUIMute(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean","boolean"}},
+  ["GetTrackReceiveUIVolPan"] = {fn=function(...) return reaper.GetTrackReceiveUIVolPan(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean","number","number"}},
+  ["GetTrackSendInfo_Value"] = {fn=function(...) return reaper.GetTrackSendInfo_Value(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"number"}},
+  ["GetTrackSendName"] = {fn=function(...) return reaper.GetTrackSendName(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["GetTrackSendUIMute"] = {fn=function(...) return reaper.GetTrackSendUIMute(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean","boolean"}},
+  ["GetTrackSendUIVolPan"] = {fn=function(...) return reaper.GetTrackSendUIVolPan(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean","number","number"}},
+  ["GetTrackState"] = {fn=function(...) return reaper.GetTrackState(...) end, args={{kind="MediaTrack",optional=false}}, returns={"string","integer"}},
+  ["GetTrackStateChunk"] = {fn=function(...) return reaper.GetTrackStateChunk(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["GetTrackUIMute"] = {fn=function(...) return reaper.GetTrackUIMute(...) end, args={{kind="MediaTrack",optional=false}}, returns={"boolean","boolean"}},
+  ["GetTrackUIPan"] = {fn=function(...) return reaper.GetTrackUIPan(...) end, args={{kind="MediaTrack",optional=false}}, returns={"boolean","number","number","integer"}},
+  ["GetTrackUIVolPan"] = {fn=function(...) return reaper.GetTrackUIVolPan(...) end, args={{kind="MediaTrack",optional=false}}, returns={"boolean","number","number"}},
+  ["GetUnderrunTime"] = {fn=function(...) return reaper.GetUnderrunTime(...) end, args={}, returns={"integer","integer","integer"}},
+  ["GetUserFileName"] = {fn=function(...) return reaper.GetUserFileName(...) end, args={{kind="integer",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GetUserFileNameForRead"] = {fn=function(...) return reaper.GetUserFileNameForRead(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GetUserInputs"] = {fn=function(...) return reaper.GetUserInputs(...) end, args={{kind="string",optional=false},{kind="integer",optional=false},{kind="string",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["GoToMarker"] = {fn=function(...) return reaper.GoToMarker(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["GoToRegion"] = {fn=function(...) return reaper.GoToRegion(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["HasExtState"] = {fn=function(...) return reaper.HasExtState(...) end, args={{kind="string",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["HasTrackMIDIPrograms"] = {fn=function(...) return reaper.HasTrackMIDIPrograms(...) end, args={{kind="integer",optional=false}}, returns={"string"}},
+  ["HasTrackMIDIProgramsEx"] = {fn=function(...) return reaper.HasTrackMIDIProgramsEx(...) end, args={{kind="ReaProject",optional=false},{kind="MediaTrack",optional=false}}, returns={"string"}},
+  ["Help_Set"] = {fn=function(...) return reaper.Help_Set(...) end, args={{kind="string",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["InsertAutomationItem"] = {fn=function(...) return reaper.InsertAutomationItem(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="number",optional=false}}, returns={"integer"}},
+  ["InsertEnvelopePoint"] = {fn=function(...) return reaper.InsertEnvelopePoint(...) end, args={{kind="TrackEnvelope",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=true}}, returns={"boolean"}},
+  ["InsertEnvelopePointEx"] = {fn=function(...) return reaper.InsertEnvelopePointEx(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=true}}, returns={"boolean"}},
+  ["InsertMedia"] = {fn=function(...) return reaper.InsertMedia(...) end, args={{kind="string",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["InsertMediaSection"] = {fn=function(...) return reaper.InsertMediaSection(...) end, args={{kind="string",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="number",optional=false}}, returns={"integer"}},
+  ["InsertTrackAtIndex"] = {fn=function(...) return reaper.InsertTrackAtIndex(...) end, args={{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["InsertTrackInProject"] = {fn=function(...) return reaper.InsertTrackInProject(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["IsDarkMode"] = {fn=function(...) return reaper.IsDarkMode(...) end, args={}, returns={"boolean"}},
+  ["IsMediaExtension"] = {fn=function(...) return reaper.IsMediaExtension(...) end, args={{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["IsMediaItemSelected"] = {fn=function(...) return reaper.IsMediaItemSelected(...) end, args={{kind="MediaItem",optional=false}}, returns={"boolean"}},
+  ["IsProjectDirty"] = {fn=function(...) return reaper.IsProjectDirty(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["IsTrackSelected"] = {fn=function(...) return reaper.IsTrackSelected(...) end, args={{kind="MediaTrack",optional=false}}, returns={"boolean"}},
+  ["IsTrackVisible"] = {fn=function(...) return reaper.IsTrackVisible(...) end, args={{kind="MediaTrack",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["LICE_ClipLine"] = {fn=function(...) return reaper.LICE_ClipLine(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","integer","integer","integer","integer"}},
+  ["LocalizeString"] = {fn=function(...) return reaper.LocalizeString(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["Loop_OnArrow"] = {fn=function(...) return reaper.Loop_OnArrow(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["MB"] = {fn=function(...) return reaper.MB(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["MIDIEditorFlagsForTrack"] = {fn=function(...) return reaper.MIDIEditorFlagsForTrack(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"integer","integer"}},
+  ["MIDIEditor_EnumTakes"] = {fn=function(...) return reaper.MIDIEditor_EnumTakes(...) end, args={{kind="HWND",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"MediaItem_Take"}},
+  ["MIDIEditor_GetActive"] = {fn=function(...) return reaper.MIDIEditor_GetActive(...) end, args={}, returns={"HWND"}},
+  ["MIDIEditor_GetMode"] = {fn=function(...) return reaper.MIDIEditor_GetMode(...) end, args={{kind="HWND",optional=false}}, returns={"integer"}},
+  ["MIDIEditor_GetSetting_int"] = {fn=function(...) return reaper.MIDIEditor_GetSetting_int(...) end, args={{kind="HWND",optional=false},{kind="string",optional=false}}, returns={"integer"}},
+  ["MIDIEditor_GetSetting_str"] = {fn=function(...) return reaper.MIDIEditor_GetSetting_str(...) end, args={{kind="HWND",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["MIDIEditor_GetTake"] = {fn=function(...) return reaper.MIDIEditor_GetTake(...) end, args={{kind="HWND",optional=false}}, returns={"MediaItem_Take"}},
+  ["MIDIEditor_LastFocused_OnCommand"] = {fn=function(...) return reaper.MIDIEditor_LastFocused_OnCommand(...) end, args={{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["MIDIEditor_OnCommand"] = {fn=function(...) return reaper.MIDIEditor_OnCommand(...) end, args={{kind="HWND",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["MIDIEditor_SetSetting_int"] = {fn=function(...) return reaper.MIDIEditor_SetSetting_int(...) end, args={{kind="HWND",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["MIDI_CountEvts"] = {fn=function(...) return reaper.MIDI_CountEvts(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"integer","integer","integer","integer"}},
+  ["MIDI_DeleteCC"] = {fn=function(...) return reaper.MIDI_DeleteCC(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["MIDI_DeleteEvt"] = {fn=function(...) return reaper.MIDI_DeleteEvt(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["MIDI_DeleteNote"] = {fn=function(...) return reaper.MIDI_DeleteNote(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["MIDI_DeleteTextSysexEvt"] = {fn=function(...) return reaper.MIDI_DeleteTextSysexEvt(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["MIDI_DisableSort"] = {fn=function(...) return reaper.MIDI_DisableSort(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={}},
+  ["MIDI_EnumSelCC"] = {fn=function(...) return reaper.MIDI_EnumSelCC(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["MIDI_EnumSelEvts"] = {fn=function(...) return reaper.MIDI_EnumSelEvts(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["MIDI_EnumSelNotes"] = {fn=function(...) return reaper.MIDI_EnumSelNotes(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["MIDI_EnumSelTextSysexEvts"] = {fn=function(...) return reaper.MIDI_EnumSelTextSysexEvts(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["MIDI_GetAllEvts"] = {fn=function(...) return reaper.MIDI_GetAllEvts(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"boolean","string"}},
+  ["MIDI_GetCC"] = {fn=function(...) return reaper.MIDI_GetCC(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean","boolean","boolean","number","integer","integer","integer","integer"}},
+  ["MIDI_GetCCShape"] = {fn=function(...) return reaper.MIDI_GetCCShape(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean","integer","number"}},
+  ["MIDI_GetEvt"] = {fn=function(...) return reaper.MIDI_GetEvt(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean","boolean","boolean","number","string"}},
+  ["MIDI_GetGrid"] = {fn=function(...) return reaper.MIDI_GetGrid(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"number","optional number","optional number"}},
+  ["MIDI_GetHash"] = {fn=function(...) return reaper.MIDI_GetHash(...) end, args={{kind="MediaItem_Take",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["MIDI_GetNote"] = {fn=function(...) return reaper.MIDI_GetNote(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean","boolean","boolean","number","number","integer","integer","integer"}},
+  ["MIDI_GetPPQPosFromProjQN"] = {fn=function(...) return reaper.MIDI_GetPPQPosFromProjQN(...) end, args={{kind="MediaItem_Take",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["MIDI_GetPPQPosFromProjTime"] = {fn=function(...) return reaper.MIDI_GetPPQPosFromProjTime(...) end, args={{kind="MediaItem_Take",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["MIDI_GetPPQPos_EndOfMeasure"] = {fn=function(...) return reaper.MIDI_GetPPQPos_EndOfMeasure(...) end, args={{kind="MediaItem_Take",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["MIDI_GetPPQPos_StartOfMeasure"] = {fn=function(...) return reaper.MIDI_GetPPQPos_StartOfMeasure(...) end, args={{kind="MediaItem_Take",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["MIDI_GetProjQNFromPPQPos"] = {fn=function(...) return reaper.MIDI_GetProjQNFromPPQPos(...) end, args={{kind="MediaItem_Take",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["MIDI_GetProjTimeFromPPQPos"] = {fn=function(...) return reaper.MIDI_GetProjTimeFromPPQPos(...) end, args={{kind="MediaItem_Take",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["MIDI_GetRecentInputEvent"] = {fn=function(...) return reaper.MIDI_GetRecentInputEvent(...) end, args={{kind="integer",optional=false}}, returns={"integer","string","integer","integer","number","integer"}},
+  ["MIDI_GetScale"] = {fn=function(...) return reaper.MIDI_GetScale(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"boolean","integer","integer","string"}},
+  ["MIDI_GetTextSysexEvt"] = {fn=function(...) return reaper.MIDI_GetTextSysexEvt(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="boolean",optional=true},{kind="boolean",optional=true},{kind="number",optional=true},{kind="integer",optional=true},{kind="string",optional=true}}, returns={"boolean","optional boolean","optional boolean","optional number","optional integer","optional","string"}},
+  ["MIDI_GetTrackHash"] = {fn=function(...) return reaper.MIDI_GetTrackHash(...) end, args={{kind="MediaTrack",optional=false},{kind="boolean",optional=false}}, returns={"boolean","string"}},
+  ["MIDI_InsertCC"] = {fn=function(...) return reaper.MIDI_InsertCC(...) end, args={{kind="MediaItem_Take",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["MIDI_InsertEvt"] = {fn=function(...) return reaper.MIDI_InsertEvt(...) end, args={{kind="MediaItem_Take",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["MIDI_InsertNote"] = {fn=function(...) return reaper.MIDI_InsertNote(...) end, args={{kind="MediaItem_Take",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=true}}, returns={"boolean"}},
+  ["MIDI_InsertTextSysexEvt"] = {fn=function(...) return reaper.MIDI_InsertTextSysexEvt(...) end, args={{kind="MediaItem_Take",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["MIDI_RefreshEditors"] = {fn=function(...) return reaper.MIDI_RefreshEditors(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={}},
+  ["MIDI_SelectAll"] = {fn=function(...) return reaper.MIDI_SelectAll(...) end, args={{kind="MediaItem_Take",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["MIDI_SetAllEvts"] = {fn=function(...) return reaper.MIDI_SetAllEvts(...) end, args={{kind="MediaItem_Take",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["MIDI_SetCC"] = {fn=function(...) return reaper.MIDI_SetCC(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="boolean",optional=true},{kind="boolean",optional=true},{kind="number",optional=true},{kind="integer",optional=true},{kind="integer",optional=true},{kind="integer",optional=true},{kind="integer",optional=true},{kind="boolean",optional=true}}, returns={"boolean"}},
+  ["MIDI_SetCCShape"] = {fn=function(...) return reaper.MIDI_SetCCShape(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="boolean",optional=true}}, returns={"boolean"}},
+  ["MIDI_SetEvt"] = {fn=function(...) return reaper.MIDI_SetEvt(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="boolean",optional=true},{kind="boolean",optional=true},{kind="number",optional=true},{kind="string",optional=true},{kind="boolean",optional=true}}, returns={"boolean"}},
+  ["MIDI_SetItemExtents"] = {fn=function(...) return reaper.MIDI_SetItemExtents(...) end, args={{kind="MediaItem",optional=false},{kind="number",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["MIDI_SetNote"] = {fn=function(...) return reaper.MIDI_SetNote(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="boolean",optional=true},{kind="boolean",optional=true},{kind="number",optional=true},{kind="number",optional=true},{kind="integer",optional=true},{kind="integer",optional=true},{kind="integer",optional=true},{kind="boolean",optional=true}}, returns={"boolean"}},
+  ["MIDI_SetTextSysexEvt"] = {fn=function(...) return reaper.MIDI_SetTextSysexEvt(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="boolean",optional=true},{kind="boolean",optional=true},{kind="number",optional=true},{kind="integer",optional=true},{kind="string",optional=true},{kind="boolean",optional=true}}, returns={"boolean"}},
+  ["MIDI_Sort"] = {fn=function(...) return reaper.MIDI_Sort(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={}},
+  ["Main_OnCommand"] = {fn=function(...) return reaper.Main_OnCommand(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["Main_OnCommandEx"] = {fn=function(...) return reaper.Main_OnCommandEx(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="ReaProject",optional=false}}, returns={}},
+  ["Main_SaveProject"] = {fn=function(...) return reaper.Main_SaveProject(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["Main_SaveProjectEx"] = {fn=function(...) return reaper.Main_SaveProjectEx(...) end, args={{kind="ReaProject",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["Main_UpdateLoopInfo"] = {fn=function(...) return reaper.Main_UpdateLoopInfo(...) end, args={{kind="integer",optional=false}}, returns={}},
+  ["Main_openProject"] = {fn=function(...) return reaper.Main_openProject(...) end, args={{kind="string",optional=false}}, returns={}},
+  ["MarkProjectDirty"] = {fn=function(...) return reaper.MarkProjectDirty(...) end, args={{kind="ReaProject",optional=false}}, returns={}},
+  ["MarkTrackItemsDirty"] = {fn=function(...) return reaper.MarkTrackItemsDirty(...) end, args={{kind="MediaTrack",optional=false},{kind="MediaItem",optional=false}}, returns={}},
+  ["Master_GetPlayRate"] = {fn=function(...) return reaper.Master_GetPlayRate(...) end, args={{kind="ReaProject",optional=false}}, returns={"number"}},
+  ["Master_GetPlayRateAtTime"] = {fn=function(...) return reaper.Master_GetPlayRateAtTime(...) end, args={{kind="number",optional=false},{kind="ReaProject",optional=false}}, returns={"number"}},
+  ["Master_GetTempo"] = {fn=function(...) return reaper.Master_GetTempo(...) end, args={}, returns={"number"}},
+  ["Master_NormalizePlayRate"] = {fn=function(...) return reaper.Master_NormalizePlayRate(...) end, args={{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["Master_NormalizeTempo"] = {fn=function(...) return reaper.Master_NormalizeTempo(...) end, args={{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["MediaExplorerGetLastPlayedFileInfo"] = {fn=function(...) return reaper.MediaExplorerGetLastPlayedFileInfo(...) end, args={}, returns={"boolean","string","integer","number","number","number","number","number","number","string"}},
+  ["MediaItemDescendsFromTrack"] = {fn=function(...) return reaper.MediaItemDescendsFromTrack(...) end, args={{kind="MediaItem",optional=false},{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["Menu_GetHash"] = {fn=function(...) return reaper.Menu_GetHash(...) end, args={{kind="string",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["MoveEditCursor"] = {fn=function(...) return reaper.MoveEditCursor(...) end, args={{kind="number",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["MoveMediaItemToTrack"] = {fn=function(...) return reaper.MoveMediaItemToTrack(...) end, args={{kind="MediaItem",optional=false},{kind="MediaTrack",optional=false}}, returns={"boolean"}},
+  ["MuteAllTracks"] = {fn=function(...) return reaper.MuteAllTracks(...) end, args={{kind="boolean",optional=false}}, returns={}},
+  ["NamedCommandLookup"] = {fn=function(...) return reaper.NamedCommandLookup(...) end, args={{kind="string",optional=false}}, returns={"integer"}},
+  ["OnPauseButton"] = {fn=function(...) return reaper.OnPauseButton(...) end, args={}, returns={}},
+  ["OnPauseButtonEx"] = {fn=function(...) return reaper.OnPauseButtonEx(...) end, args={{kind="ReaProject",optional=false}}, returns={}},
+  ["OnPlayButton"] = {fn=function(...) return reaper.OnPlayButton(...) end, args={}, returns={}},
+  ["OnPlayButtonEx"] = {fn=function(...) return reaper.OnPlayButtonEx(...) end, args={{kind="ReaProject",optional=false}}, returns={}},
+  ["OnStopButton"] = {fn=function(...) return reaper.OnStopButton(...) end, args={}, returns={}},
+  ["OnStopButtonEx"] = {fn=function(...) return reaper.OnStopButtonEx(...) end, args={{kind="ReaProject",optional=false}}, returns={}},
+  ["OpenColorThemeFile"] = {fn=function(...) return reaper.OpenColorThemeFile(...) end, args={{kind="string",optional=false}}, returns={"boolean"}},
+  ["OpenMediaExplorer"] = {fn=function(...) return reaper.OpenMediaExplorer(...) end, args={{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"HWND"}},
+  ["OscLocalMessageToHost"] = {fn=function(...) return reaper.OscLocalMessageToHost(...) end, args={{kind="string",optional=false},{kind="number",optional=true}}, returns={}},
+  ["PCM_Sink_Enum"] = {fn=function(...) return reaper.PCM_Sink_Enum(...) end, args={{kind="integer",optional=false}}, returns={"integer","string"}},
+  ["PCM_Sink_GetExtension"] = {fn=function(...) return reaper.PCM_Sink_GetExtension(...) end, args={{kind="string",optional=false}}, returns={"string"}},
+  ["PCM_Sink_ShowConfig"] = {fn=function(...) return reaper.PCM_Sink_ShowConfig(...) end, args={{kind="string",optional=false},{kind="HWND",optional=false}}, returns={"HWND"}},
+  ["PCM_Source_BuildPeaks"] = {fn=function(...) return reaper.PCM_Source_BuildPeaks(...) end, args={{kind="PCM_source",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["PCM_Source_CreateFromFile"] = {fn=function(...) return reaper.PCM_Source_CreateFromFile(...) end, args={{kind="string",optional=false}}, returns={"PCM_source"}},
+  ["PCM_Source_CreateFromFileEx"] = {fn=function(...) return reaper.PCM_Source_CreateFromFileEx(...) end, args={{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"PCM_source"}},
+  ["PCM_Source_CreateFromType"] = {fn=function(...) return reaper.PCM_Source_CreateFromType(...) end, args={{kind="string",optional=false}}, returns={"PCM_source"}},
+  ["PCM_Source_Destroy"] = {fn=function(...) return reaper.PCM_Source_Destroy(...) end, args={{kind="PCM_source",optional=false}}, returns={}},
+  ["PCM_Source_GetPeaks"] = {fn=function(...) return reaper.PCM_Source_GetPeaks(...) end, args={{kind="PCM_source",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="reaper.array",optional=false}}, returns={"integer"}},
+  ["PCM_Source_GetSectionInfo"] = {fn=function(...) return reaper.PCM_Source_GetSectionInfo(...) end, args={{kind="PCM_source",optional=false}}, returns={"boolean","number","number","boolean"}},
+  ["PluginWantsAlwaysRunFx"] = {fn=function(...) return reaper.PluginWantsAlwaysRunFx(...) end, args={{kind="integer",optional=false}}, returns={}},
+  ["PromptForAction"] = {fn=function(...) return reaper.PromptForAction(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["RecursiveCreateDirectory"] = {fn=function(...) return reaper.RecursiveCreateDirectory(...) end, args={{kind="string",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["RefreshToolbar"] = {fn=function(...) return reaper.RefreshToolbar(...) end, args={{kind="integer",optional=false}}, returns={}},
+  ["RefreshToolbar2"] = {fn=function(...) return reaper.RefreshToolbar2(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["RemoveTrackSend"] = {fn=function(...) return reaper.RemoveTrackSend(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["RenderFileSection"] = {fn=function(...) return reaper.RenderFileSection(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["ReorderSelectedTracks"] = {fn=function(...) return reaper.ReorderSelectedTracks(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["Resample_EnumModes"] = {fn=function(...) return reaper.Resample_EnumModes(...) end, args={{kind="integer",optional=false}}, returns={"string"}},
+  ["ResolveWildcards"] = {fn=function(...) return reaper.ResolveWildcards(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false},{kind="string",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["ReverseNamedCommandLookup"] = {fn=function(...) return reaper.ReverseNamedCommandLookup(...) end, args={{kind="integer",optional=false}}, returns={"string"}},
+  ["SLIDER2DB"] = {fn=function(...) return reaper.SLIDER2DB(...) end, args={{kind="number",optional=false}}, returns={"number"}},
+  ["ScaleFromEnvelopeMode"] = {fn=function(...) return reaper.ScaleFromEnvelopeMode(...) end, args={{kind="integer",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["ScaleToEnvelopeMode"] = {fn=function(...) return reaper.ScaleToEnvelopeMode(...) end, args={{kind="integer",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["SectionFromUniqueID"] = {fn=function(...) return reaper.SectionFromUniqueID(...) end, args={{kind="integer",optional=false}}, returns={"KbdSectionInfo"}},
+  ["SelectAllMediaItems"] = {fn=function(...) return reaper.SelectAllMediaItems(...) end, args={{kind="ReaProject",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["SelectProjectInstance"] = {fn=function(...) return reaper.SelectProjectInstance(...) end, args={{kind="ReaProject",optional=false}}, returns={}},
+  ["SendMIDIMessageToHardware"] = {fn=function(...) return reaper.SendMIDIMessageToHardware(...) end, args={{kind="integer",optional=false},{kind="string",optional=false}}, returns={}},
+  ["SetActiveTake"] = {fn=function(...) return reaper.SetActiveTake(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={}},
+  ["SetAutomationMode"] = {fn=function(...) return reaper.SetAutomationMode(...) end, args={{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["SetCurrentBPM"] = {fn=function(...) return reaper.SetCurrentBPM(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["SetCursorContext"] = {fn=function(...) return reaper.SetCursorContext(...) end, args={{kind="integer",optional=false},{kind="TrackEnvelope",optional=false}}, returns={}},
+  ["SetEditCurPos"] = {fn=function(...) return reaper.SetEditCurPos(...) end, args={{kind="number",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["SetEditCurPos2"] = {fn=function(...) return reaper.SetEditCurPos2(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["SetEnvelopePoint"] = {fn=function(...) return reaper.SetEnvelopePoint(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false},{kind="number",optional=true},{kind="number",optional=true},{kind="integer",optional=true},{kind="number",optional=true},{kind="boolean",optional=true},{kind="boolean",optional=true}}, returns={"boolean"}},
+  ["SetEnvelopePointEx"] = {fn=function(...) return reaper.SetEnvelopePointEx(...) end, args={{kind="TrackEnvelope",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=true},{kind="number",optional=true},{kind="integer",optional=true},{kind="number",optional=true},{kind="boolean",optional=true},{kind="boolean",optional=true}}, returns={"boolean"}},
+  ["SetEnvelopeStateChunk"] = {fn=function(...) return reaper.SetEnvelopeStateChunk(...) end, args={{kind="TrackEnvelope",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["SetExtState"] = {fn=function(...) return reaper.SetExtState(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["SetGlobalAutomationOverride"] = {fn=function(...) return reaper.SetGlobalAutomationOverride(...) end, args={{kind="integer",optional=false}}, returns={}},
+  ["SetItemStateChunk"] = {fn=function(...) return reaper.SetItemStateChunk(...) end, args={{kind="MediaItem",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["SetMIDIEditorGrid"] = {fn=function(...) return reaper.SetMIDIEditorGrid(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={}},
+  ["SetMasterTrackVisibility"] = {fn=function(...) return reaper.SetMasterTrackVisibility(...) end, args={{kind="integer",optional=false}}, returns={"integer"}},
+  ["SetMediaItemInfo_Value"] = {fn=function(...) return reaper.SetMediaItemInfo_Value(...) end, args={{kind="MediaItem",optional=false},{kind="string",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["SetMediaItemLength"] = {fn=function(...) return reaper.SetMediaItemLength(...) end, args={{kind="MediaItem",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["SetMediaItemPosition"] = {fn=function(...) return reaper.SetMediaItemPosition(...) end, args={{kind="MediaItem",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["SetMediaItemSelected"] = {fn=function(...) return reaper.SetMediaItemSelected(...) end, args={{kind="MediaItem",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["SetMediaItemTakeInfo_Value"] = {fn=function(...) return reaper.SetMediaItemTakeInfo_Value(...) end, args={{kind="MediaItem_Take",optional=false},{kind="string",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["SetMediaItemTake_Source"] = {fn=function(...) return reaper.SetMediaItemTake_Source(...) end, args={{kind="MediaItem_Take",optional=false},{kind="PCM_source",optional=false}}, returns={"boolean"}},
+  ["SetMediaTrackInfo_Value"] = {fn=function(...) return reaper.SetMediaTrackInfo_Value(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["SetMixerScroll"] = {fn=function(...) return reaper.SetMixerScroll(...) end, args={{kind="MediaTrack",optional=false}}, returns={"MediaTrack"}},
+  ["SetMouseModifier"] = {fn=function(...) return reaper.SetMouseModifier(...) end, args={{kind="string",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={}},
+  ["SetOnlyTrackSelected"] = {fn=function(...) return reaper.SetOnlyTrackSelected(...) end, args={{kind="MediaTrack",optional=false}}, returns={}},
+  ["SetProjExtState"] = {fn=function(...) return reaper.SetProjExtState(...) end, args={{kind="ReaProject",optional=false},{kind="string",optional=false},{kind="string",optional=false},{kind="string",optional=false}}, returns={"integer"}},
+  ["SetProjectGrid"] = {fn=function(...) return reaper.SetProjectGrid(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={}},
+  ["SetProjectMarker"] = {fn=function(...) return reaper.SetProjectMarker(...) end, args={{kind="integer",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["SetProjectMarker2"] = {fn=function(...) return reaper.SetProjectMarker2(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["SetProjectMarker3"] = {fn=function(...) return reaper.SetProjectMarker3(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["SetProjectMarker4"] = {fn=function(...) return reaper.SetProjectMarker4(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["SetProjectMarkerByIndex"] = {fn=function(...) return reaper.SetProjectMarkerByIndex(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["SetProjectMarkerByIndex2"] = {fn=function(...) return reaper.SetProjectMarkerByIndex2(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["SetRegionOrMarkerInfo_Value"] = {fn=function(...) return reaper.SetRegionOrMarkerInfo_Value(...) end, args={{kind="ReaProject",optional=false},{kind="ProjectMarker",optional=false},{kind="string",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["SetRegionRenderMatrix"] = {fn=function(...) return reaper.SetRegionRenderMatrix(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["SetTakeMarker"] = {fn=function(...) return reaper.SetTakeMarker(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="string",optional=false},{kind="number",optional=true},{kind="integer",optional=true}}, returns={"integer"}},
+  ["SetTakeStretchMarker"] = {fn=function(...) return reaper.SetTakeStretchMarker(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="number",optional=true}}, returns={"integer"}},
+  ["SetTakeStretchMarkerSlope"] = {fn=function(...) return reaper.SetTakeStretchMarkerSlope(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["SetTempoTimeSigMarker"] = {fn=function(...) return reaper.SetTempoTimeSigMarker(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="number",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["SetThemeColor"] = {fn=function(...) return reaper.SetThemeColor(...) end, args={{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["SetToggleCommandState"] = {fn=function(...) return reaper.SetToggleCommandState(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["SetTrackAutomationMode"] = {fn=function(...) return reaper.SetTrackAutomationMode(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["SetTrackColor"] = {fn=function(...) return reaper.SetTrackColor(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["SetTrackMIDILyrics"] = {fn=function(...) return reaper.SetTrackMIDILyrics(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["SetTrackMIDINoteName"] = {fn=function(...) return reaper.SetTrackMIDINoteName(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["SetTrackMIDINoteNameEx"] = {fn=function(...) return reaper.SetTrackMIDINoteNameEx(...) end, args={{kind="ReaProject",optional=false},{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["SetTrackSelected"] = {fn=function(...) return reaper.SetTrackSelected(...) end, args={{kind="MediaTrack",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["SetTrackSendInfo_Value"] = {fn=function(...) return reaper.SetTrackSendInfo_Value(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="string",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["SetTrackSendUIPan"] = {fn=function(...) return reaper.SetTrackSendUIPan(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["SetTrackSendUIVol"] = {fn=function(...) return reaper.SetTrackSendUIVol(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["SetTrackStateChunk"] = {fn=function(...) return reaper.SetTrackStateChunk(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["SetTrackUIInputMonitor"] = {fn=function(...) return reaper.SetTrackUIInputMonitor(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["SetTrackUIMute"] = {fn=function(...) return reaper.SetTrackUIMute(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["SetTrackUIPan"] = {fn=function(...) return reaper.SetTrackUIPan(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["SetTrackUIPolarity"] = {fn=function(...) return reaper.SetTrackUIPolarity(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["SetTrackUIRecArm"] = {fn=function(...) return reaper.SetTrackUIRecArm(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["SetTrackUISolo"] = {fn=function(...) return reaper.SetTrackUISolo(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["SetTrackUIVolume"] = {fn=function(...) return reaper.SetTrackUIVolume(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["SetTrackUIWidth"] = {fn=function(...) return reaper.SetTrackUIWidth(...) end, args={{kind="MediaTrack",optional=false},{kind="number",optional=false},{kind="boolean",optional=false},{kind="boolean",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["ShowActionList"] = {fn=function(...) return reaper.ShowActionList(...) end, args={{kind="KbdSectionInfo",optional=false},{kind="HWND",optional=false}}, returns={}},
+  ["ShowConsoleMsg"] = {fn=function(...) return reaper.ShowConsoleMsg(...) end, args={{kind="string",optional=false}}, returns={}},
+  ["ShowMessageBox"] = {fn=function(...) return reaper.ShowMessageBox(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["ShowPopupMenu"] = {fn=function(...) return reaper.ShowPopupMenu(...) end, args={{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="HWND",optional=false},{kind="identifier",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["SnapToGrid"] = {fn=function(...) return reaper.SnapToGrid(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["SoloAllTracks"] = {fn=function(...) return reaper.SoloAllTracks(...) end, args={{kind="integer",optional=false}}, returns={}},
+  ["Splash_GetWnd"] = {fn=function(...) return reaper.Splash_GetWnd(...) end, args={}, returns={"HWND"}},
+  ["SplitMediaItem"] = {fn=function(...) return reaper.SplitMediaItem(...) end, args={{kind="MediaItem",optional=false},{kind="number",optional=false}}, returns={"MediaItem"}},
+  ["StuffMIDIMessage"] = {fn=function(...) return reaper.StuffMIDIMessage(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["TakeFX_AddByName"] = {fn=function(...) return reaper.TakeFX_AddByName(...) end, args={{kind="MediaItem_Take",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["TakeFX_CopyToTake"] = {fn=function(...) return reaper.TakeFX_CopyToTake(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TakeFX_CopyToTrack"] = {fn=function(...) return reaper.TakeFX_CopyToTrack(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TakeFX_Delete"] = {fn=function(...) return reaper.TakeFX_Delete(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TakeFX_EndParamEdit"] = {fn=function(...) return reaper.TakeFX_EndParamEdit(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TakeFX_FormatParamValue"] = {fn=function(...) return reaper.TakeFX_FormatParamValue(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false}}, returns={"boolean","string"}},
+  ["TakeFX_FormatParamValueNormalized"] = {fn=function(...) return reaper.TakeFX_FormatParamValueNormalized(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false}}, returns={"boolean","string"}},
+  ["TakeFX_GetChainVisible"] = {fn=function(...) return reaper.TakeFX_GetChainVisible(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"integer"}},
+  ["TakeFX_GetCount"] = {fn=function(...) return reaper.TakeFX_GetCount(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"integer"}},
+  ["TakeFX_GetEnabled"] = {fn=function(...) return reaper.TakeFX_GetEnabled(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TakeFX_GetEnvelope"] = {fn=function(...) return reaper.TakeFX_GetEnvelope(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"TrackEnvelope"}},
+  ["TakeFX_GetFXGUID"] = {fn=function(...) return reaper.TakeFX_GetFXGUID(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["TakeFX_GetFXName"] = {fn=function(...) return reaper.TakeFX_GetFXName(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["TakeFX_GetFloatingWindow"] = {fn=function(...) return reaper.TakeFX_GetFloatingWindow(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"HWND"}},
+  ["TakeFX_GetFormattedParamValue"] = {fn=function(...) return reaper.TakeFX_GetFormattedParamValue(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["TakeFX_GetIOSize"] = {fn=function(...) return reaper.TakeFX_GetIOSize(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"integer","integer","integer"}},
+  ["TakeFX_GetNamedConfigParm"] = {fn=function(...) return reaper.TakeFX_GetNamedConfigParm(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["TakeFX_GetNumParams"] = {fn=function(...) return reaper.TakeFX_GetNumParams(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["TakeFX_GetOffline"] = {fn=function(...) return reaper.TakeFX_GetOffline(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TakeFX_GetOpen"] = {fn=function(...) return reaper.TakeFX_GetOpen(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TakeFX_GetParam"] = {fn=function(...) return reaper.TakeFX_GetParam(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"number","number","number"}},
+  ["TakeFX_GetParamEx"] = {fn=function(...) return reaper.TakeFX_GetParamEx(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"number","number","number","number"}},
+  ["TakeFX_GetParamFromIdent"] = {fn=function(...) return reaper.TakeFX_GetParamFromIdent(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"integer"}},
+  ["TakeFX_GetParamIdent"] = {fn=function(...) return reaper.TakeFX_GetParamIdent(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["TakeFX_GetParamName"] = {fn=function(...) return reaper.TakeFX_GetParamName(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["TakeFX_GetParamNormalized"] = {fn=function(...) return reaper.TakeFX_GetParamNormalized(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["TakeFX_GetParamSectionName"] = {fn=function(...) return reaper.TakeFX_GetParamSectionName(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["TakeFX_GetParameterStepSizes"] = {fn=function(...) return reaper.TakeFX_GetParameterStepSizes(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","number","number","number","boolean"}},
+  ["TakeFX_GetPinMappings"] = {fn=function(...) return reaper.TakeFX_GetPinMappings(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer","integer"}},
+  ["TakeFX_GetPreset"] = {fn=function(...) return reaper.TakeFX_GetPreset(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["TakeFX_GetPresetIndex"] = {fn=function(...) return reaper.TakeFX_GetPresetIndex(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"integer","integer"}},
+  ["TakeFX_GetUserPresetFilename"] = {fn=function(...) return reaper.TakeFX_GetUserPresetFilename(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["TakeFX_NavigatePresets"] = {fn=function(...) return reaper.TakeFX_NavigatePresets(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TakeFX_SetEnabled"] = {fn=function(...) return reaper.TakeFX_SetEnabled(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TakeFX_SetNamedConfigParm"] = {fn=function(...) return reaper.TakeFX_SetNamedConfigParm(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="string",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["TakeFX_SetOffline"] = {fn=function(...) return reaper.TakeFX_SetOffline(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TakeFX_SetOpen"] = {fn=function(...) return reaper.TakeFX_SetOpen(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TakeFX_SetParam"] = {fn=function(...) return reaper.TakeFX_SetParam(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["TakeFX_SetParamNormalized"] = {fn=function(...) return reaper.TakeFX_SetParamNormalized(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["TakeFX_SetPinMappings"] = {fn=function(...) return reaper.TakeFX_SetPinMappings(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TakeFX_SetPreset"] = {fn=function(...) return reaper.TakeFX_SetPreset(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["TakeFX_SetPresetByIndex"] = {fn=function(...) return reaper.TakeFX_SetPresetByIndex(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TakeFX_Show"] = {fn=function(...) return reaper.TakeFX_Show(...) end, args={{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["TakeIsMIDI"] = {fn=function(...) return reaper.TakeIsMIDI(...) end, args={{kind="MediaItem_Take",optional=false}}, returns={"boolean"}},
+  ["ThemeLayout_GetLayout"] = {fn=function(...) return reaper.ThemeLayout_GetLayout(...) end, args={{kind="string",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["ThemeLayout_GetParameter"] = {fn=function(...) return reaper.ThemeLayout_GetParameter(...) end, args={{kind="integer",optional=false}}, returns={"string","optional","string","optional integer","optional integer","optional integer","optional integer"}},
+  ["ThemeLayout_RefreshAll"] = {fn=function(...) return reaper.ThemeLayout_RefreshAll(...) end, args={}, returns={}},
+  ["ThemeLayout_SetLayout"] = {fn=function(...) return reaper.ThemeLayout_SetLayout(...) end, args={{kind="string",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["ThemeLayout_SetParameter"] = {fn=function(...) return reaper.ThemeLayout_SetParameter(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["TimeMap2_GetDividedBpmAtTime"] = {fn=function(...) return reaper.TimeMap2_GetDividedBpmAtTime(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["TimeMap2_GetNextChangeTime"] = {fn=function(...) return reaper.TimeMap2_GetNextChangeTime(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["TimeMap2_QNToTime"] = {fn=function(...) return reaper.TimeMap2_QNToTime(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["TimeMap2_beatsToTime"] = {fn=function(...) return reaper.TimeMap2_beatsToTime(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false},{kind="integer",optional=true}}, returns={"number"}},
+  ["TimeMap2_timeToBeats"] = {fn=function(...) return reaper.TimeMap2_timeToBeats(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"number","optional integer","optional integer","optional number","optional integer"}},
+  ["TimeMap2_timeToQN"] = {fn=function(...) return reaper.TimeMap2_timeToQN(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["TimeMap_GetDividedBpmAtTime"] = {fn=function(...) return reaper.TimeMap_GetDividedBpmAtTime(...) end, args={{kind="number",optional=false}}, returns={"number"}},
+  ["TimeMap_GetMeasureInfo"] = {fn=function(...) return reaper.TimeMap_GetMeasureInfo(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"number","number","number","integer","integer","number"}},
+  ["TimeMap_GetMetronomePattern"] = {fn=function(...) return reaper.TimeMap_GetMetronomePattern(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false},{kind="string",optional=false}}, returns={"integer","string"}},
+  ["TimeMap_GetTimeSigAtTime"] = {fn=function(...) return reaper.TimeMap_GetTimeSigAtTime(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"integer","integer","number"}},
+  ["TimeMap_QNToMeasures"] = {fn=function(...) return reaper.TimeMap_QNToMeasures(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"integer","optional number","optional number"}},
+  ["TimeMap_QNToTime"] = {fn=function(...) return reaper.TimeMap_QNToTime(...) end, args={{kind="number",optional=false}}, returns={"number"}},
+  ["TimeMap_QNToTime_abs"] = {fn=function(...) return reaper.TimeMap_QNToTime_abs(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["TimeMap_curFrameRate"] = {fn=function(...) return reaper.TimeMap_curFrameRate(...) end, args={{kind="ReaProject",optional=false}}, returns={"number","boolean"}},
+  ["TimeMap_timeToQN"] = {fn=function(...) return reaper.TimeMap_timeToQN(...) end, args={{kind="number",optional=false}}, returns={"number"}},
+  ["TimeMap_timeToQN_abs"] = {fn=function(...) return reaper.TimeMap_timeToQN_abs(...) end, args={{kind="ReaProject",optional=false},{kind="number",optional=false}}, returns={"number"}},
+  ["ToggleTrackSendUIMute"] = {fn=function(...) return reaper.ToggleTrackSendUIMute(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TrackCtl_SetToolTip"] = {fn=function(...) return reaper.TrackCtl_SetToolTip(...) end, args={{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TrackFX_AddByName"] = {fn=function(...) return reaper.TrackFX_AddByName(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false},{kind="boolean",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["TrackFX_CopyToTake"] = {fn=function(...) return reaper.TrackFX_CopyToTake(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="MediaItem_Take",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TrackFX_CopyToTrack"] = {fn=function(...) return reaper.TrackFX_CopyToTrack(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TrackFX_Delete"] = {fn=function(...) return reaper.TrackFX_Delete(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TrackFX_EndParamEdit"] = {fn=function(...) return reaper.TrackFX_EndParamEdit(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TrackFX_FormatParamValue"] = {fn=function(...) return reaper.TrackFX_FormatParamValue(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false}}, returns={"boolean","string"}},
+  ["TrackFX_FormatParamValueNormalized"] = {fn=function(...) return reaper.TrackFX_FormatParamValueNormalized(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false}}, returns={"boolean","string"}},
+  ["TrackFX_GetByName"] = {fn=function(...) return reaper.TrackFX_GetByName(...) end, args={{kind="MediaTrack",optional=false},{kind="string",optional=false},{kind="boolean",optional=false}}, returns={"integer"}},
+  ["TrackFX_GetChainVisible"] = {fn=function(...) return reaper.TrackFX_GetChainVisible(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["TrackFX_GetCount"] = {fn=function(...) return reaper.TrackFX_GetCount(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["TrackFX_GetEQ"] = {fn=function(...) return reaper.TrackFX_GetEQ(...) end, args={{kind="MediaTrack",optional=false},{kind="boolean",optional=false}}, returns={"integer"}},
+  ["TrackFX_GetEQBandEnabled"] = {fn=function(...) return reaper.TrackFX_GetEQBandEnabled(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TrackFX_GetEQParam"] = {fn=function(...) return reaper.TrackFX_GetEQParam(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","integer","integer","integer","number"}},
+  ["TrackFX_GetEnabled"] = {fn=function(...) return reaper.TrackFX_GetEnabled(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TrackFX_GetFXGUID"] = {fn=function(...) return reaper.TrackFX_GetFXGUID(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["TrackFX_GetFXName"] = {fn=function(...) return reaper.TrackFX_GetFXName(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["TrackFX_GetFloatingWindow"] = {fn=function(...) return reaper.TrackFX_GetFloatingWindow(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"HWND"}},
+  ["TrackFX_GetFormattedParamValue"] = {fn=function(...) return reaper.TrackFX_GetFormattedParamValue(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["TrackFX_GetIOSize"] = {fn=function(...) return reaper.TrackFX_GetIOSize(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"integer","integer","integer"}},
+  ["TrackFX_GetInstrument"] = {fn=function(...) return reaper.TrackFX_GetInstrument(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["TrackFX_GetNamedConfigParm"] = {fn=function(...) return reaper.TrackFX_GetNamedConfigParm(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["TrackFX_GetNumParams"] = {fn=function(...) return reaper.TrackFX_GetNumParams(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["TrackFX_GetOffline"] = {fn=function(...) return reaper.TrackFX_GetOffline(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TrackFX_GetOpen"] = {fn=function(...) return reaper.TrackFX_GetOpen(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TrackFX_GetParam"] = {fn=function(...) return reaper.TrackFX_GetParam(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"number","number","number"}},
+  ["TrackFX_GetParamEx"] = {fn=function(...) return reaper.TrackFX_GetParamEx(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"number","number","number","number"}},
+  ["TrackFX_GetParamFromIdent"] = {fn=function(...) return reaper.TrackFX_GetParamFromIdent(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"integer"}},
+  ["TrackFX_GetParamIdent"] = {fn=function(...) return reaper.TrackFX_GetParamIdent(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["TrackFX_GetParamName"] = {fn=function(...) return reaper.TrackFX_GetParamName(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["TrackFX_GetParamNormalized"] = {fn=function(...) return reaper.TrackFX_GetParamNormalized(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["TrackFX_GetParamSectionName"] = {fn=function(...) return reaper.TrackFX_GetParamSectionName(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["TrackFX_GetParameterStepSizes"] = {fn=function(...) return reaper.TrackFX_GetParameterStepSizes(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean","number","number","number","boolean"}},
+  ["TrackFX_GetPinMappings"] = {fn=function(...) return reaper.TrackFX_GetPinMappings(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"integer","integer"}},
+  ["TrackFX_GetPreset"] = {fn=function(...) return reaper.TrackFX_GetPreset(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"boolean","string"}},
+  ["TrackFX_GetPresetIndex"] = {fn=function(...) return reaper.TrackFX_GetPresetIndex(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"integer","integer"}},
+  ["TrackFX_GetRecChainVisible"] = {fn=function(...) return reaper.TrackFX_GetRecChainVisible(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["TrackFX_GetRecCount"] = {fn=function(...) return reaper.TrackFX_GetRecCount(...) end, args={{kind="MediaTrack",optional=false}}, returns={"integer"}},
+  ["TrackFX_GetUserPresetFilename"] = {fn=function(...) return reaper.TrackFX_GetUserPresetFilename(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["TrackFX_NavigatePresets"] = {fn=function(...) return reaper.TrackFX_NavigatePresets(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TrackFX_SetEQBandEnabled"] = {fn=function(...) return reaper.TrackFX_SetEQBandEnabled(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["TrackFX_SetEQParam"] = {fn=function(...) return reaper.TrackFX_SetEQParam(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false},{kind="boolean",optional=false}}, returns={"boolean"}},
+  ["TrackFX_SetEnabled"] = {fn=function(...) return reaper.TrackFX_SetEnabled(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TrackFX_SetNamedConfigParm"] = {fn=function(...) return reaper.TrackFX_SetNamedConfigParm(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="string",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["TrackFX_SetOffline"] = {fn=function(...) return reaper.TrackFX_SetOffline(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TrackFX_SetOpen"] = {fn=function(...) return reaper.TrackFX_SetOpen(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["TrackFX_SetParam"] = {fn=function(...) return reaper.TrackFX_SetParam(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["TrackFX_SetParamNormalized"] = {fn=function(...) return reaper.TrackFX_SetParamNormalized(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="number",optional=false}}, returns={"boolean"}},
+  ["TrackFX_SetPinMappings"] = {fn=function(...) return reaper.TrackFX_SetPinMappings(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TrackFX_SetPreset"] = {fn=function(...) return reaper.TrackFX_SetPreset(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["TrackFX_SetPresetByIndex"] = {fn=function(...) return reaper.TrackFX_SetPresetByIndex(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={"boolean"}},
+  ["TrackFX_Show"] = {fn=function(...) return reaper.TrackFX_Show(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["TrackList_AdjustWindows"] = {fn=function(...) return reaper.TrackList_AdjustWindows(...) end, args={{kind="boolean",optional=false}}, returns={}},
+  ["TrackList_UpdateAllExternalSurfaces"] = {fn=function(...) return reaper.TrackList_UpdateAllExternalSurfaces(...) end, args={}, returns={}},
+  ["Track_GetPeakHoldDB"] = {fn=function(...) return reaper.Track_GetPeakHoldDB(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={"number"}},
+  ["Track_GetPeakInfo"] = {fn=function(...) return reaper.Track_GetPeakInfo(...) end, args={{kind="MediaTrack",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["Undo_CanRedo2"] = {fn=function(...) return reaper.Undo_CanRedo2(...) end, args={{kind="ReaProject",optional=false}}, returns={"string"}},
+  ["Undo_CanUndo2"] = {fn=function(...) return reaper.Undo_CanUndo2(...) end, args={{kind="ReaProject",optional=false}}, returns={"string"}},
+  ["Undo_DoRedo2"] = {fn=function(...) return reaper.Undo_DoRedo2(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["Undo_DoUndo2"] = {fn=function(...) return reaper.Undo_DoUndo2(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["Undo_GetCurEntry"] = {fn=function(...) return reaper.Undo_GetCurEntry(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["Undo_GetEntryDesc"] = {fn=function(...) return reaper.Undo_GetEntryDesc(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["Undo_GetEntryTime"] = {fn=function(...) return reaper.Undo_GetEntryTime(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["Undo_GetNumEntries"] = {fn=function(...) return reaper.Undo_GetNumEntries(...) end, args={{kind="ReaProject",optional=false}}, returns={"integer"}},
+  ["Undo_IsEntryAltTree"] = {fn=function(...) return reaper.Undo_IsEntryAltTree(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["Undo_OnStateChange"] = {fn=function(...) return reaper.Undo_OnStateChange(...) end, args={{kind="string",optional=false}}, returns={}},
+  ["Undo_OnStateChange2"] = {fn=function(...) return reaper.Undo_OnStateChange2(...) end, args={{kind="ReaProject",optional=false},{kind="string",optional=false}}, returns={}},
+  ["Undo_OnStateChangeEx"] = {fn=function(...) return reaper.Undo_OnStateChangeEx(...) end, args={{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["Undo_OnStateChangeEx2"] = {fn=function(...) return reaper.Undo_OnStateChangeEx2(...) end, args={{kind="ReaProject",optional=false},{kind="string",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["Undo_OnStateChange_Item"] = {fn=function(...) return reaper.Undo_OnStateChange_Item(...) end, args={{kind="ReaProject",optional=false},{kind="string",optional=false},{kind="MediaItem",optional=false}}, returns={}},
+  ["Undo_SetCurPos"] = {fn=function(...) return reaper.Undo_SetCurPos(...) end, args={{kind="ReaProject",optional=false},{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["UpdateArrange"] = {fn=function(...) return reaper.UpdateArrange(...) end, args={}, returns={}},
+  ["UpdateItemInProject"] = {fn=function(...) return reaper.UpdateItemInProject(...) end, args={{kind="MediaItem",optional=false}}, returns={}},
+  ["UpdateItemLanes"] = {fn=function(...) return reaper.UpdateItemLanes(...) end, args={{kind="ReaProject",optional=false}}, returns={"boolean"}},
+  ["UpdateTimeline"] = {fn=function(...) return reaper.UpdateTimeline(...) end, args={}, returns={}},
+  ["ValidatePtr"] = {fn=function(...) return reaper.ValidatePtr(...) end, args={{kind="identifier",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["ValidatePtr2"] = {fn=function(...) return reaper.ValidatePtr2(...) end, args={{kind="ReaProject",optional=false},{kind="identifier",optional=false},{kind="string",optional=false}}, returns={"boolean"}},
+  ["ViewPrefs"] = {fn=function(...) return reaper.ViewPrefs(...) end, args={{kind="integer",optional=false},{kind="string",optional=false}}, returns={}},
+  ["adjustZoom"] = {fn=function(...) return reaper.adjustZoom(...) end, args={{kind="number",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["file_exists"] = {fn=function(...) return reaper.file_exists(...) end, args={{kind="string",optional=false}}, returns={"boolean"}},
+  ["format_timestr"] = {fn=function(...) return reaper.format_timestr(...) end, args={{kind="number",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["format_timestr_len"] = {fn=function(...) return reaper.format_timestr_len(...) end, args={{kind="number",optional=false},{kind="string",optional=false},{kind="number",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["format_timestr_pos"] = {fn=function(...) return reaper.format_timestr_pos(...) end, args={{kind="number",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"string"}},
+  ["genGuid"] = {fn=function(...) return reaper.genGuid(...) end, args={{kind="string",optional=false}}, returns={"string"}},
+  ["get_config_var_string"] = {fn=function(...) return reaper.get_config_var_string(...) end, args={{kind="string",optional=false}}, returns={"boolean","string"}},
+  ["get_ini_file"] = {fn=function(...) return reaper.get_ini_file(...) end, args={}, returns={"string"}},
+  ["guidToString"] = {fn=function(...) return reaper.guidToString(...) end, args={{kind="string",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["image_resolve_fn"] = {fn=function(...) return reaper.image_resolve_fn(...) end, args={{kind="string",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["joystick_create"] = {fn=function(...) return reaper.joystick_create(...) end, args={{kind="string",optional=false}}, returns={"joystick_device"}},
+  ["joystick_destroy"] = {fn=function(...) return reaper.joystick_destroy(...) end, args={{kind="joystick_device",optional=false}}, returns={}},
+  ["joystick_enum"] = {fn=function(...) return reaper.joystick_enum(...) end, args={{kind="integer",optional=false}}, returns={"string","optional","string"}},
+  ["joystick_getaxis"] = {fn=function(...) return reaper.joystick_getaxis(...) end, args={{kind="joystick_device",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["joystick_getbuttonmask"] = {fn=function(...) return reaper.joystick_getbuttonmask(...) end, args={{kind="joystick_device",optional=false}}, returns={"integer"}},
+  ["joystick_getinfo"] = {fn=function(...) return reaper.joystick_getinfo(...) end, args={{kind="joystick_device",optional=false}}, returns={"integer","optional integer","optional integer"}},
+  ["joystick_getpov"] = {fn=function(...) return reaper.joystick_getpov(...) end, args={{kind="joystick_device",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["joystick_update"] = {fn=function(...) return reaper.joystick_update(...) end, args={{kind="joystick_device",optional=false}}, returns={"boolean"}},
+  ["kbd_enumerateActions"] = {fn=function(...) return reaper.kbd_enumerateActions(...) end, args={{kind="KbdSectionInfo",optional=false},{kind="integer",optional=false}}, returns={"integer","string"}},
+  ["kbd_getTextFromCmd"] = {fn=function(...) return reaper.kbd_getTextFromCmd(...) end, args={{kind="integer",optional=false},{kind="KbdSectionInfo",optional=false}}, returns={"string"}},
+  ["midi_init"] = {fn=function(...) return reaper.midi_init(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false}}, returns={}},
+  ["midi_reinit"] = {fn=function(...) return reaper.midi_reinit(...) end, args={}, returns={}},
+  ["mkpanstr"] = {fn=function(...) return reaper.mkpanstr(...) end, args={{kind="string",optional=false},{kind="number",optional=false}}, returns={"string"}},
+  ["mkvolpanstr"] = {fn=function(...) return reaper.mkvolpanstr(...) end, args={{kind="string",optional=false},{kind="number",optional=false},{kind="number",optional=false}}, returns={"string"}},
+  ["mkvolstr"] = {fn=function(...) return reaper.mkvolstr(...) end, args={{kind="string",optional=false},{kind="number",optional=false}}, returns={"string"}},
+  ["my_getViewport"] = {fn=function(...) return reaper.my_getViewport(...) end, args={{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="integer",optional=false},{kind="boolean",optional=false}}, returns={}},
+  ["parse_timestr"] = {fn=function(...) return reaper.parse_timestr(...) end, args={{kind="string",optional=false}}, returns={"number"}},
+  ["parse_timestr_len"] = {fn=function(...) return reaper.parse_timestr_len(...) end, args={{kind="string",optional=false},{kind="number",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["parse_timestr_pos"] = {fn=function(...) return reaper.parse_timestr_pos(...) end, args={{kind="string",optional=false},{kind="integer",optional=false}}, returns={"number"}},
+  ["parsepanstr"] = {fn=function(...) return reaper.parsepanstr(...) end, args={{kind="string",optional=false}}, returns={"number"}},
+  ["reduce_open_files"] = {fn=function(...) return reaper.reduce_open_files(...) end, args={{kind="integer",optional=false}}, returns={"integer"}},
+  ["relative_fn"] = {fn=function(...) return reaper.relative_fn(...) end, args={{kind="string",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["resolve_fn"] = {fn=function(...) return reaper.resolve_fn(...) end, args={{kind="string",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["resolve_fn2"] = {fn=function(...) return reaper.resolve_fn2(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="string",optional=true}}, returns={"string"}},
+  ["set_config_var_string"] = {fn=function(...) return reaper.set_config_var_string(...) end, args={{kind="string",optional=false},{kind="string",optional=false},{kind="integer",optional=false}}, returns={"integer"}},
+  ["stringToGuid"] = {fn=function(...) return reaper.stringToGuid(...) end, args={{kind="string",optional=false},{kind="string",optional=false}}, returns={"string"}},
+  ["time_precise"] = {fn=function(...) return reaper.time_precise(...) end, args={}, returns={"number"}},
+}
+-- END GENERATED REAPER API CATALOG
+
+-- This source fragment is embedded into reaper_mcp_server.lua at build time.
+-- No dynamic Lua source execution or arbitrary function-name lookup.
+local native_api = {}
+local native_handles = {}
+local native_next_handle = 0
+local native_session = reaper.genGuid()
+local native_pointer_kinds = {
+  MediaTrack=true, MediaItem=true, MediaItem_Take=true, TrackEnvelope=true,
+  ReaProject=true, PCM_source=true, AudioAccessor=true, ProjectMarker=true,
+}
+
+local function native_finite(n)
+  return type(n) == "number" and n == n and n ~= math.huge and n ~= -math.huge
+end
+
+local function native_decode(value, spec)
+  local kind = spec.kind
+  if value == nil or (type(value) == "table" and value.null == true) then
+    if spec.optional then return nil end
+    error("Required argument " .. kind .. " cannot be null")
+  end
+  if kind == "integer" or kind == "number" then
+    if not native_finite(value) or (kind == "integer" and math.floor(value) ~= value) then
+      error("Expected finite " .. kind)
+    end
+    return value
+  elseif kind == "boolean" then
+    if type(value) ~= "boolean" then error("Expected boolean") end
+    return value
+  elseif kind == "string" then
+    if type(value) == "table" and type(value.bytes_hex) == "string" then
+      local hex = value.bytes_hex
+      if #hex > 2000000 or #hex % 2 ~= 0 or hex:find("[^0-9a-fA-F]") then error("Invalid bytes_hex") end
+      return (hex:gsub("..", function(pair) return string.char(tonumber(pair, 16)) end))
+    end
+    if type(value) ~= "string" or #value > 2000000 then error("Expected string <= 2 MB") end
+    return value
+  elseif kind == "ReaProject" and value == 0 then
+    return 0
+  elseif kind == "MediaTrack" and type(value) == "table" and value.track ~= nil then
+    local idx = value.track
+    if not native_finite(idx) or math.floor(idx) ~= idx or idx < -1 then error("Invalid track selector") end
+    local tr = idx == -1 and reaper.GetMasterTrack(0) or reaper.GetTrack(0, idx)
+    if not tr then error("Track does not exist") end
+    return tr
+  elseif kind == "reaper.array" then
+    if type(value) ~= "table" then error("Expected array descriptor") end
+    local size = value.array_size or (type(value.array) == "table" and #value.array)
+    if not native_finite(size) or math.floor(size) ~= size or size < 1 or size > 65536 then
+      error("Array size must be 1..65536")
+    end
+    if value.array then
+      for _, n in ipairs(value.array) do if not native_finite(n) then error("Array must contain finite numbers") end end
+      return reaper.new_array(value.array)
+    end
+    return reaper.new_array(size)
+  end
+  if type(value) ~= "table" or type(value.handle) ~= "string" then error("Expected " .. kind .. " session handle") end
+  local entry = native_handles[value.handle]
+  if not entry or (kind ~= "identifier" and entry.kind ~= kind) then error("Unknown, expired or incorrectly typed handle") end
+  if native_pointer_kinds[entry.kind] and not reaper.ValidatePtr(entry.value, entry.kind .. "*") then
+    native_handles[value.handle] = nil
+    error("REAPER object was deleted or its project was closed")
+  end
+  return entry.value
+end
+
+local function native_encode(value, kind)
+  if value == nil then return {null=true} end
+  if type(value) == "userdata" then
+    native_next_handle = native_next_handle + 1
+    if native_next_handle > 100000 then error("Handle budget exhausted; restart bridge") end
+    local id = native_session .. ":" .. native_next_handle
+    native_handles[id] = {value=value, kind=kind}
+    return {handle=id, type=kind}
+  end
+  if type(value) == "string" and (value:find("%z") or not utf8.len(value)) then
+    return {bytes_hex=(value:gsub(".", function(c) return string.format("%02x", string.byte(c)) end))}
+  end
+  if type(value) == "number" and not native_finite(value) then return {number=tostring(value)} end
+  if type(value) == "string" or type(value) == "number" or type(value) == "boolean" then return value end
+  error("Unsupported native result type: " .. type(value))
+end
+
+function native_api.native_api_status()
+  local available, unavailable = 0, {}
+  for name in pairs(native_catalog) do
+    if reaper.APIExists(name) then available = available + 1 else unavailable[#unavailable+1] = name end
+  end
+  table.sort(unavailable)
+  return {bridge_version="0.9.0", reaper_version=reaper.GetAppVersion(),
+          catalog_version="7.82", available_count=available, unavailable=unavailable, session=native_session}
+end
+
+function native_api.native_api_call(p)
+  local spec = native_catalog[p.function_name]
+  if not spec then return nil, "Unknown or excluded native API function" end
+  if not reaper.APIExists(p.function_name) then return nil, "API not available in this REAPER build" end
+  if type(p.arguments) ~= "table" or #p.arguments > #spec.args then return nil, "Invalid argument count" end
+  local args, arrays = {}, {}
+  for i, arg_spec in ipairs(spec.args) do
+    local ok, value = pcall(native_decode, p.arguments[i], arg_spec)
+    if not ok then return nil, "Argument " .. i .. ": " .. tostring(value) end
+    args[i] = value
+    if arg_spec.kind == "reaper.array" and value then arrays[#arrays+1] = {index=i, value=value} end
+  end
+  if p.function_name == "DeleteTrack" and args[1] == reaper.GetMasterTrack(0) then
+    return nil, "The master track cannot be deleted"
+  end
+  if p.function_name == "GetAudioAccessorSamples" then
+    local descriptor = p.arguments[6]
+    local capacity = descriptor.array_size or #descriptor.array
+    if args[3] < 1 or args[5] < 0 or args[3] * args[5] > capacity then
+      return nil, "Audio sample buffer is smaller than channels * samples per channel"
+    end
+  end
+  local label = p.undo_description or ""
+  if type(label) ~= "string" or #label > 640 then return nil, "Invalid undo description" end
+  local project_at_start = reaper.EnumProjects(-1, "")
+  if label ~= "" then reaper.Undo_BeginBlock2(project_at_start) end
+  local result = table.pack(pcall(spec.fn, table.unpack(args, 1, #spec.args)))
+  if label ~= "" then reaper.Undo_EndBlock2(project_at_start, "MCP API: " .. label, -1) end
+  if not result[1] then return nil, tostring(result[2]) end
+  local values, buffers = {}, {}
+  for i=2,result.n do
+    local ok, encoded = pcall(native_encode, result[i], spec.returns[i-1] or "opaque")
+    if not ok then return nil, tostring(encoded) end
+    values[#values+1] = {index=i-1, value=encoded}
+  end
+  for _, arr in ipairs(arrays) do buffers[#buffers+1] = {index=arr.index, values=arr.value.table()} end
+  return {function_name=p.function_name, returns=values, arrays=buffers}
+end
+
+function native_api.native_fx_inspect_tree(p)
+  local ok, tr = pcall(native_decode, {track=p.track_index}, {kind="MediaTrack"})
+  if not ok then return nil, tostring(tr) end
+  local chain = p.chain or "normal"
+  if chain ~= "normal" and chain ~= "input" and chain ~= "monitoring" then return nil, "Invalid FX chain" end
+  if (chain == "input" and p.track_index == -1) or (chain == "monitoring" and p.track_index ~= -1) then
+    return nil, "Input/monitoring chain does not match track"
+  end
+  local installed_names, installed_ids = {}, {}
+  local n = 0
+  while true do
+    local exists, name, ident = reaper.EnumInstalledFX(n)
+    if not exists then break end
+    installed_names[name] = true
+    installed_ids[ident] = true
+    n = n + 1
+  end
+  local count = chain == "normal" and reaper.TrackFX_GetCount(tr) or reaper.TrackFX_GetRecCount(tr)
+  local base = chain == "normal" and 0 or 0x1000000
+  local results, visited = {}, {}
+  local function named(idx, key)
+    local found, value = reaper.TrackFX_GetNamedConfigParm(tr, idx, key)
+    return found and value or ""
+  end
+  local function visit(idx, parent)
+    if visited[idx] or #results >= 1000 then return end
+    visited[idx] = true
+    local _, label = reaper.TrackFX_GetFXName(tr, idx, "")
+    local original, ident = named(idx,"fx_name"), named(idx,"fx_ident")
+    local children = tonumber(named(idx,"container_count")) or 0
+    results[#results+1] = {
+      index=idx, parent=parent, name=label, original_name=original, identifier=ident,
+      guid=reaper.TrackFX_GetFXGUID(tr,idx), fx_type=named(idx,"fx_type"),
+      enabled=reaper.TrackFX_GetEnabled(tr,idx), offline=reaper.TrackFX_GetOffline(tr,idx),
+      parameter_count=reaper.TrackFX_GetNumParams(tr,idx), container_count=children,
+      parallel=named(idx,"parallel"), latency_samples=named(idx,"pdc"),
+      registry_match=(installed_names[original] or installed_ids[ident]) == true,
+      load_status="not_inferred_from_registry",
+    }
+    for child=0,children-1 do
+      local child_idx=tonumber(named(idx,"container_item." .. child))
+      if child_idx then visit(child_idx,idx) end
+    end
+  end
+  for i=0,count-1 do visit(base+i,-1) end
+  return {track_index=p.track_index, chain=chain, fx=results, truncated=#results>=1000}
+end
 
 local transport = {}
 
@@ -5565,6 +6475,7 @@ end
 -- ============================================================
 
 local handlers = {}
+for k,v in pairs(native_api) do handlers[k]=v end
 for k, v in pairs(transport) do handlers[k] = v end
 for k, v in pairs(track) do handlers[k] = v end
 for k, v in pairs(project) do handlers[k] = v end
