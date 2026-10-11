@@ -84,6 +84,13 @@ Read-side lookups (individual track/item/FX operations by index) rely on REAPER'
 
 These are intentionally conservative — REAPER's main thread blocks while Lua parses a large JSON payload, so huge calls would stall playback.
 
+The Lua JSON codec escapes response strings in a single pass and decodes
+unescaped request strings directly, allocating a chunk table only when an escape
+needs decoding. This reduces scanning and allocation overhead for large batches
+without changing the wire format, numeric precision, or size/depth limits.
+`tests/test_lua_json.py` exercises these paths under Lua 5.4, including legacy
+null/empty-table handling and escaped strings.
+
 ---
 
 ## Dynamic tool registration

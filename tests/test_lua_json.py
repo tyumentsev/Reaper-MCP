@@ -98,6 +98,51 @@ def test_legacy_string_encoding_is_unchanged(codec):
     assert json.loads(encode('a\\n\n\r\t"b')) == 'a\\n\n\r\t"b'
 
 
+def test_encoder_matches_legacy_escaping_for_all_ascii(codec):
+    _, encode, _ = codec
+    text = "".join(chr(i) for i in range(128))
+    escaped = (
+        text.replace("\\", "\\\\").replace('"', '\\"')
+        .replace("\n", "\\n").replace("\r", "\\r")
+        .replace("\t", "\\t").replace("\0", "")
+    )
+    assert encode(text) == '"' + escaped + '"'
+
+
+def test_encoder_escapes_strings_in_one_scan(codec):
+    lua, encode, _ = codec
+    lua.execute("""
+      scan_count = 0
+      local original = string.gsub
+      string.gsub = function(...)
+        scan_count = scan_count + 1
+        return original(...)
+      end
+    """)
+    text = 'prefix\\\n\r\t"suffix'
+    assert json.loads(encode(text)) == text
+    assert lua.globals().scan_count == 1
+
+
+def test_plain_string_decoding_does_not_concatenate_chunks(codec):
+    lua, _, decode = codec
+    lua.execute("""
+      concat_count = 0
+      local original = table.concat
+      table.concat = function(...)
+        concat_count = concat_count + 1
+        return original(...)
+      end
+    """)
+    value = decode('{"track": "Piano", "notes": ["C4", "E4"], "empty": ""}')
+    assert value["track"] == "Piano"
+    assert list(value["notes"].values()) == ["C4", "E4"]
+    assert value["empty"] == ""
+    assert lua.globals().concat_count == 0
+    assert decode(r'"escaped\nstring"') == "escaped\nstring"
+    assert lua.globals().concat_count == 1
+
+
 def test_legacy_null_and_empty_table_handling_is_unchanged(codec):
     _, encode, decode = codec
     assert decode("null") is None

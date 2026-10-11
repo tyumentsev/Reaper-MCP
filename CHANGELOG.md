@@ -13,6 +13,13 @@ All notable changes to ReaperMCP will be documented in this file.
 - See docs/NATIVE_API.md for scope, lifecycle and eight excluded native calls.
 
 
+### Performance
+
+- Reduce Lua JSON overhead for large MIDI batches and native API payloads:
+  escape strings in one pass and decode unescaped strings without temporary
+  chunk tables. Command behavior, numeric precision and existing wire-format
+  handling remain unchanged; regression tests exercise the codec under Lua 5.4.
+
 ### Fixed
 
 - **`track_set_input(input_index=-1)` cleared the track's input instead of

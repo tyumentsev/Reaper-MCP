@@ -91,6 +91,10 @@ end
 
 local MAX_DEPTH = 50
 local MAX_JSON_LENGTH = 20 * 1024 * 1024 -- 20MB (headroom for 50k-note batches)
+local JSON_ESCAPES = {
+  ['\\'] = '\\\\', ['"'] = '\\"',
+  ['\n'] = '\\n', ['\r'] = '\\r', ['\t'] = '\\t', ['\0'] = '',
+}
 
 local function json_encode(val, depth, visited)
   depth = depth or 0
@@ -113,7 +117,7 @@ local function json_encode(val, depth, visited)
     -- to keep every float we actually handle bit-exact.
     return string.format("%.17g", val)
   elseif t == "string" then
-    val = val:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n'):gsub('\r', '\\r'):gsub('\t', '\\t'):gsub('%z', '')
+    val = val:gsub('[\\"\n\r\t%z]', JSON_ESCAPES)
     return '"' .. val .. '"'
   elseif t == "table" then
     visited = visited or {}
@@ -194,7 +198,7 @@ local function json_decode(str)
 
   local function parse_string()
     pos = pos + 1 -- skip opening "
-    local result = {}
+    local result
     local chunk_start = pos
     while pos <= len do
       -- Find the next " or \ using string.find (bulk scan)
@@ -202,16 +206,22 @@ local function json_decode(str)
       if not special then
         -- unterminated string
         pos = len + 1
-        return table.concat(result)
+        return result and table.concat(result) or ""
       end
+      local b = byte(str, special)
+      -- Most keys and values need no escape decoding or temporary chunk table.
+      if b == B_QUOTE and not result then
+        pos = special + 1
+        return sub(str, chunk_start, special - 1)
+      end
+      result = result or {}
       -- Grab the chunk of plain characters before the special char
       if special > chunk_start then
         result[#result+1] = sub(str, chunk_start, special - 1)
       end
-      local b = byte(str, special)
       if b == B_QUOTE then
         pos = special + 1
-        return table.concat(result)
+        return result and table.concat(result) or ""
       else
         -- backslash escape
         local esc_char = sub(str, special + 1, special + 1)
