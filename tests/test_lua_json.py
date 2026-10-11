@@ -84,6 +84,10 @@ def test_nonfinite_numbers_and_nil_encode_as_null(codec):
     (r'"\uD83D\uDE00"', "??"),
     (r'"\uZZZZ"', "?"),
     (r'"\b\f\q"', "bfq"),
+    ('"', ""),
+    ('"\\', ""),
+    ('"\\u', "?"),
+    ('"\\u0061', "a"),
     ('"unfinished', ""),
     ('"prefix\\nunfinished', "prefix\n"),
 ])

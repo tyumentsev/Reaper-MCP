@@ -221,7 +221,7 @@ local function json_decode(str)
       end
       if b == B_QUOTE then
         pos = special + 1
-        return result and table.concat(result) or ""
+        return table.concat(result)
       else
         -- backslash escape
         local esc_char = sub(str, special + 1, special + 1)
@@ -266,7 +266,7 @@ local function json_decode(str)
       end
       ::continue::
     end
-    return table.concat(result)
+    return result and table.concat(result) or ""
   end
 
   local function parse_number()
